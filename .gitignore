@@ -1,3 +1,16 @@
+# ▶ Virtual environments
 venv/
-.idea
 .env
+.idea
+
+
+# ▶ Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ▶ Md
+*.md
+
+*.jpg
