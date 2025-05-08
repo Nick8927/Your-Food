@@ -1,26 +1,14 @@
-from os import getenv
-from dotenv import load_dotenv
 import asyncio
-from aiogram import Bot, Dispatcher, F
-from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram import Bot, Dispatcher
 
-from keybords.inline import *
-from keybords.reply import *
-from database.utils import *
+from config import TOKEN
+from handlers import start, get_contact
 
-load_dotenv()
-TOKEN = getenv('TOKEN')
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
-bot = Bot(TOKEN)
 
-
-@dp.message(CommandStart())
-async def command_start(message):
-    """обработка команды start"""
-    await message.answer(f"Добрый день, <i>{message.from_user.full_name}</i>\nВы в гостях у вкуснях из под ножа 🍰",
-    parse_mode='HTML')
-
+dp.include_router(start.router)
+dp.include_router(get_contact.router)
 
 async def main():
     await dp.start_polling(bot)
