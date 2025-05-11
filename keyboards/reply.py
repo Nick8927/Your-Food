@@ -13,10 +13,14 @@ def get_main_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="✅ Сделать заказ")
     builder.button(text="📒 История")
-    builder.button(text="🛒 Корзинка")
+    builder.button(text="🛒 Корзина")
     builder.button(text="⚙ Настройки")
     builder.adjust(1, 3)
     return builder.as_markup(resize_keyboard=True)
 
 
-
+def back_to_main_menu():
+    """кнопка возврата в главное меню"""
+    builder = ReplyKeyboardBuilder()
+    builder.button(text="Главное меню")
+    return builder.as_markup(resize_keyboard=True)
