@@ -1,3 +1,4 @@
+
 from sqlalchemy import String, DECIMAL, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base

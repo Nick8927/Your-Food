@@ -17,3 +17,5 @@ __pycache__/
 
 media/*
 !media/.gitkeep
+
+database/models/models.py

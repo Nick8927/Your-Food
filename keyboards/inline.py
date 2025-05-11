@@ -1,0 +1,25 @@
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from database.utils import db_get_all_category, db_get_finally_price
+
+
+def generate_category_menu(chat_id):
+    """
+    Генерация inline-клавиатуры с категориями товаров.
+
+    :param chat_id: ID пользователя для получения суммы корзины.
+    :return: InlineMarkup с кнопками категорий и корзинки.
+    """
+    categories = db_get_all_category()
+    total_price = db_get_finally_price(chat_id)
+
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=f'Корзина заказа ({total_price if total_price else 0} рублей)',
+        callback_data='Предварительный заказ'
+    )
+
+    [builder.button(text=category.category_name, callback_data=f'category_{category.id}')
+     for category in categories]
+
+    builder.adjust(1, 2)
+    return builder.as_markup()
