@@ -54,11 +54,35 @@ def db_get_all_category():
 
 def db_get_finally_price(chat_id):
     """получение итоговой цены"""
-    query = select(func.sum(FinallyCarts.final_price)).\
+    query = select(func.sum(FinallyCarts.final_price)). \
         select_from(
-            join(Carts, FinallyCarts, Carts.id == FinallyCarts.cart_id)
-        ).\
-        join(Users, Users.id == Carts.user_id).\
+        join(Carts, FinallyCarts, Carts.id == FinallyCarts.cart_id)
+    ). \
+        join(Users, Users.id == Carts.user_id). \
         where(Users.telegram == chat_id)
 
     return db_session.execute(query).fetchone()[0]
+
+
+def db_get_last_orders(chat_id: int, limit: int = 5):
+    """получить последние заказы пользователя"""
+    query = (
+        select(FinallyCarts)
+        .join(Carts, FinallyCarts.cart_id == Carts.id)
+        .join(Users, Users.id == Carts.user_id)
+        .where(Users.telegram == chat_id)
+        .order_by(FinallyCarts.id.desc())
+        .limit(limit)
+    )
+    return db_session.scalars(query).all()
+
+
+def db_get_cart_items(chat_id: int):
+    """получить все товары текущей корзины пользователя"""
+    query = (
+        select(FinallyCarts)
+        .join(Carts, FinallyCarts.cart_id == Carts.id)
+        .join(Users, Users.id == Carts.user_id)
+        .where(Users.telegram == chat_id)
+    )
+    return db_session.scalars(query).all()
