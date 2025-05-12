@@ -1,7 +1,9 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
+from aiogram.exceptions import TelegramBadRequest
 
 from database.utils import db_get_last_orders, db_get_cart_items
-from keyboards.reply import back_to_main_menu
+from handlers.get_contact import show_main_menu
+from keyboards.reply import back_to_main_menu, get_main_menu
 from keyboards.inline import generate_category_menu
 from aiogram.types import Message
 
@@ -58,3 +60,16 @@ async def handle_cart(message: Message):
 
     text += f"\n💰 Итого: {total:.2f} руб"
     await message.answer(text)
+
+
+@router.message(F.text == "Главное меню")
+async def handle_main_menu(message: Message, bot: Bot):
+    """
+    Обработчик кнопки 'Главное меню'.
+    Удаляет предыдущее сообщение и показывает главное меню.
+    """
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+    except TelegramBadRequest:
+        ...
+    await show_main_menu(message)
