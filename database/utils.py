@@ -4,7 +4,7 @@ from sqlalchemy import update, delete, select, DECIMAL
 from sqlalchemy.sql.functions import sum
 from sqlalchemy.exc import IntegrityError
 from database.models import Users, Categories, Products, Carts, FinallyCarts
-from .base import engine
+from database.base import engine
 from sqlalchemy import select, join
 from sqlalchemy.sql import func
 
@@ -86,3 +86,60 @@ def db_get_cart_items(chat_id: int):
         .where(Users.telegram == chat_id)
     )
     return db_session.scalars(query).all()
+
+
+def db_add_products(products_data: list[dict]):
+    """добавление нескольких товаров в БД, использовал для доп. добавления товаров, прямо из модуля"""
+    try:
+        for data in products_data:
+            category = db_session.scalar(
+                select(Categories).where(Categories.category_name == data["category_name"])
+            )
+            if not category:
+                print(f"Категория {data['category_name']} не найдена.")
+                continue
+
+            product = Products(
+                product_name=data["product_name"],
+                description=data["description"],
+                image=data["image"],
+                price=data["price"],
+                category_id=category.id
+            )
+            db_session.add(product)
+
+        db_session.commit()
+        print("Продукты успешно добавлены.")
+
+    except IntegrityError as e:
+        db_session.rollback()
+        print(f"Ошибка добавления: {e}")
+
+
+# if __name__ == "__main__":
+#     products = [
+#         {
+#             "product_name": "Овсяное печенье",
+#             "description": "Домашнее овсяное печенье",
+#             "image": "media/cookies/ovsyanoe.jpg",
+#             "price": 15.50,
+#             "category_name": "Печенье"
+#         },
+#         {
+#             "product_name": "Шоколадное печенье",
+#             "description": "Печенье с кусочками шоколада",
+#             "image": "media/cookies/choco_cookie.jpg",
+#             "price": 22.00,
+#             "category_name": "Печенье"
+#         },
+#         {
+#             "product_name": "Кокосовое печенье",
+#             "description": "С хрустящей корочкой и кокосовой стружкой",
+#             "image": "media/cookies/kokos_cookie.jpg",
+#             "price": 28.00,
+#             "category_name": "Печенье"
+#         }
+#     ]
+#
+#     db_add_products(products)
+
