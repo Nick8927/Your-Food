@@ -88,6 +88,12 @@ def db_get_cart_items(chat_id: int):
     return db_session.scalars(query).all()
 
 
+def db_get_product(category_id):
+    """получение продуктов по id категории"""
+    query = select(Products).where(Products.category_id == category_id)
+    return db_session.scalars(query)
+
+
 def db_add_products(products_data: list[dict]):
     """добавление нескольких товаров в БД, использовал для доп. добавления товаров, прямо из модуля"""
     try:
@@ -115,7 +121,6 @@ def db_add_products(products_data: list[dict]):
         db_session.rollback()
         print(f"Ошибка добавления: {e}")
 
-
 # if __name__ == "__main__":
 #     products = [
 #         {
@@ -142,4 +147,3 @@ def db_add_products(products_data: list[dict]):
 #     ]
 #
 #     db_add_products(products)
-
