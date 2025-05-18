@@ -121,6 +121,25 @@ def db_add_products(products_data: list[dict]):
         db_session.rollback()
         print(f"Ошибка добавления: {e}")
 
+
+def db_get_product_by_id(product_id: int) -> Products:
+    """получение продукта по его id"""
+    query = select(Products).where(Products.id == product_id)
+    return db_session.scalar(query)
+
+
+def db_get_user_cart(chat_id: int) -> Carts:
+    """получение корзины пользователя по его id"""
+    query = select(Carts).join(Users).where(Users.telegram == chat_id)
+    return db_session.scalar(query)
+
+
+def db_update_to_cart(price: DECIMAL, cart_id: int, quantity=1) -> None:
+    """обновление корзины пользователя по его id"""
+    query = update(Carts).where(Carts.id == cart_id).values(total_price=price, total_products=quantity)
+    db_session.execute(query)
+    db_session.commit()
+
 # if __name__ == "__main__":
 #     products = [
 #         {
