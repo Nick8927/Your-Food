@@ -3,7 +3,7 @@ from aiogram.exceptions import TelegramBadRequest
 
 from database.utils import db_get_last_orders, db_get_cart_items
 from handlers.get_contact import show_main_menu
-from keyboards.reply import back_to_main_menu, get_main_menu
+from keyboards.reply import back_to_main_menu
 from keyboards.inline import generate_category_menu
 from aiogram.types import Message
 
