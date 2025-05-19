@@ -19,3 +19,4 @@ media/*
 !media/.gitkeep
 
 database/models/models.py
+check_image.py
