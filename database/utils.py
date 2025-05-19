@@ -128,6 +128,12 @@ def db_get_product_by_id(product_id: int) -> Products:
     return db_session.scalar(query)
 
 
+def db_get_product_by_name(product_name: str) -> Products:
+    """получение продукта по его имени"""
+    query = select(Products).where(Products.product_name == product_name)
+    return db_session.scalar(query)
+
+
 def db_get_user_cart(chat_id: int) -> Carts:
     """получение корзины пользователя по его id"""
     query = select(Carts).join(Users).where(Users.telegram == chat_id)
@@ -155,8 +161,6 @@ def update_product_image(product_name: str, new_image_path: str):
     product.image = new_image_path
     db_session.commit()
     print("✅ Изображение успешно обновлено.")
-
-
 
 # if __name__ == "__main__":
 #     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
@@ -196,4 +200,4 @@ def update_product_image(product_name: str, new_image_path: str):
 #     }
 # ]
 
-    # db_add_products(products)
+# db_add_products(products)
