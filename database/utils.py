@@ -140,29 +140,60 @@ def db_update_to_cart(price: DECIMAL, cart_id: int, quantity=1) -> None:
     db_session.execute(query)
     db_session.commit()
 
+
+def update_product_image(product_name: str, new_image_path: str):
+    """обновление изображения товара"""
+    product = db_session.scalar(
+        select(Products).where(Products.product_name == product_name)
+    )
+
+    if not product:
+        print(f"❌ Продукт '{product_name}' не найден.")
+        return
+
+    print(f"🔁 Обновляем изображение для '{product_name}'...")
+    product.image = new_image_path
+    db_session.commit()
+    print("✅ Изображение успешно обновлено.")
+
+
+
 # if __name__ == "__main__":
+#     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
+#     update_product_image("Наполеон", "media/cakes/cake_napoleon.jpg")
+#     update_product_image("Птичье молоко", "media/cakes/cake_milk.jpg")
+
 #     products = [
-#         {
-#             "product_name": "Овсяное печенье",
-#             "description": "Домашнее овсяное печенье",
-#             "image": "media/cookies/ovsyanoe.jpg",
-#             "price": 15.50,
-#             "category_name": "Печенье"
-#         },
-#         {
-#             "product_name": "Шоколадное печенье",
-#             "description": "Печенье с кусочками шоколада",
-#             "image": "media/cookies/choco_cookie.jpg",
-#             "price": 22.00,
-#             "category_name": "Печенье"
-#         },
-#         {
-#             "product_name": "Кокосовое печенье",
-#             "description": "С хрустящей корочкой и кокосовой стружкой",
-#             "image": "media/cookies/kokos_cookie.jpg",
-#             "price": 28.00,
-#             "category_name": "Печенье"
-#         }
-#     ]
+# {
+#     "product_name": "Овсяное печенье",
+#     "description": "Домашнее овсяное печенье",
+#     "image": "media/cookies/ovsyanoe.jpg",
+#     "price": 15.50,
+#     "category_name": "Печенье"
+# },
+# {
+#     "product_name": "Шоколадное печенье",
+#     "description": "Печенье с кусочками шоколада",
+#     "image": "media/cookies/choco_cookie.jpg",
+#     "price": 22.00,
+#     "category_name": "Печенье"
+# },
+# {
+#     "product_name": "Кокосовое печенье",
+#     "description": "С хрустящей корочкой и кокосовой стружкой",
+#     "image": "media/cookies/kokos_cookie.jpg",
+#     "price": 28.00,
+#     "category_name": "Печенье"
+# },
+
+#     {
+#         "product_name": "Медовик",
+#         "description": "Торт с медом и коричневым сахаром",
+#         "image": "media\cakes\hone_cake.jpg",
+#         "price": 50.00,
+#         "category_name": "Торты"
 #
-#     db_add_products(products)
+#     }
+# ]
+
+    # db_add_products(products)
