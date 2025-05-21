@@ -1,12 +1,11 @@
-from typing import Iterable
 from sqlalchemy.orm import Session
 from sqlalchemy import update, delete, select, DECIMAL
-from sqlalchemy.sql.functions import sum
 from sqlalchemy.exc import IntegrityError
 from database.models import Users, Categories, Products, Carts, FinallyCarts
 from database.base import engine
 from sqlalchemy import select, join
 from sqlalchemy.sql import func
+
 
 with Session(engine) as session:
     db_session = session
@@ -147,7 +146,7 @@ def db_update_to_cart(price: DECIMAL, cart_id: int, quantity=1) -> None:
     db_session.commit()
 
 
-def update_product_image(product_name: str, new_image_path: str):
+def db_update_product_image(product_name: str, new_image_path: str):
     """обновление изображения товара"""
     product = db_session.scalar(
         select(Products).where(Products.product_name == product_name)
@@ -161,6 +160,40 @@ def update_product_image(product_name: str, new_image_path: str):
     product.image = new_image_path
     db_session.commit()
     print("✅ Изображение успешно обновлено.")
+
+
+def db_upsert_final_cart_item(cart_id, product_name, total_price, total_products):
+    """
+       Добавляет товар в финальную корзину или обновляет его, если уже есть.
+       Возвращает статус: 'inserted', 'updated' или 'error'
+       """
+    try:
+        new_item = FinallyCarts(
+            cart_id=cart_id,
+            product_name=product_name,
+            quantity=total_products,
+            final_price=total_price
+        )
+        db_session.add(new_item)
+        db_session.commit()
+        return 'inserted'
+
+    except IntegrityError:
+        db_session.rollback()
+        stmt = (
+            update(FinallyCarts)
+            .where(FinallyCarts.cart_id == cart_id)
+            .where(FinallyCarts.product_name == product_name)
+            .values(quantity=total_products, final_price=total_price)
+        )
+        db_session.execute(stmt)
+        db_session.commit()
+        return 'updated'
+
+    except Exception as e:
+        db_session.rollback()
+        print(f"[db_upsert_cart_item] Ошибка: {e}")
+        return 'error'
 
 # if __name__ == "__main__":
 #     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
