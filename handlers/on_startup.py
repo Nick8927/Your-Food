@@ -10,6 +10,18 @@ from keyboards.reply import phone_button, start_keyboard
 router = Router()
 
 
+@router.message(CommandStart(deep_link="welcome"))
+async def command_start_welcome(message: Message):
+    """Обработка старта по ссылке с deep-link 'welcome'"""
+    photo = FSInputFile("media/welcome.jpg")
+    await message.answer_photo(
+        photo=photo,
+        caption=f"Добро пожаловать, <i>{message.from_user.full_name}</i>\nНажмите кнопку ниже, чтобы начать",
+        parse_mode='HTML',
+        reply_markup=start_keyboard()
+    )
+
+
 @router.message(CommandStart())
 async def command_start(message: Message):
     """обработка команды start"""
