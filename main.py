@@ -3,14 +3,14 @@ from aiogram import Bot, Dispatcher
 
 from config import TOKEN
 from handlers import (
-    start, get_contact, order_handler,
+    on_startup, get_contact, order_handler,
     categories_handler, navigation_handlers, product_detail,
     cart_quantity, add_to_cart)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-dp.include_router(start.router)
+dp.include_router(on_startup.router)
 dp.include_router(get_contact.router)
 dp.include_router(order_handler.router)
 dp.include_router(categories_handler.router)
