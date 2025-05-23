@@ -5,7 +5,7 @@ from config import TOKEN
 from handlers import (
     on_startup, get_contact, order_handler,
     categories_handler, navigation_handlers, product_detail,
-    cart_quantity, add_to_cart)
+    cart_quantity, add_to_cart, open_cart_handler)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -18,6 +18,7 @@ dp.include_router(navigation_handlers.router)
 dp.include_router(product_detail.router)
 dp.include_router(cart_quantity.router)
 dp.include_router(add_to_cart.router)
+dp.include_router(open_cart_handler.router)
 
 
 async def main():
