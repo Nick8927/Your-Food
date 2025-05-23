@@ -41,3 +41,6 @@ async def add_to_cart(callback: CallbackQuery, bot: Bot):
             await bot.send_message(chat_id=chat_id, text='Количество изменено 💫')
         case 'error':
             await bot.send_message(chat_id=chat_id, text='Произошла ошибка при добавлении ❌')
+
+
+    await return_to_category_menu(message, bot)
