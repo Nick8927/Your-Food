@@ -168,6 +168,18 @@ def db_upsert_final_cart_item(cart_id, product_name, total_price, total_products
        Возвращает статус: 'inserted', 'updated' или 'error'
        """
     try:
+        item = (
+            db_session.query(FinallyCarts)
+            .filter_by(cart_id=cart_id, product_name=product_name)
+            .first()
+        )
+
+        if item:
+            item.quantity = total_products
+            item.final_price = total_price
+            db_session.commit()
+            return 'updated'
+
         new_item = FinallyCarts(
             cart_id=cart_id,
             product_name=product_name,
@@ -178,17 +190,10 @@ def db_upsert_final_cart_item(cart_id, product_name, total_price, total_products
         db_session.commit()
         return 'inserted'
 
-    except IntegrityError:
+    except Exception as e:
         db_session.rollback()
-        stmt = (
-            update(FinallyCarts)
-            .where(FinallyCarts.cart_id == cart_id)
-            .where(FinallyCarts.product_name == product_name)
-            .values(quantity=total_products, final_price=total_price)
-        )
-        db_session.execute(stmt)
-        db_session.commit()
-        return 'updated'
+        print(f"[db_upsert_cart_item] Ошибка: {e}")
+        return 'error'
 
     except Exception as e:
         db_session.rollback()
