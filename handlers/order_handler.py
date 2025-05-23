@@ -1,7 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
 
-from database.utils import db_get_last_orders, db_get_cart_items
+from database.utils import db_get_last_orders
 from handlers.get_contact import show_main_menu
 from keyboards.reply import back_to_main_menu
 from keyboards.inline import generate_category_menu
@@ -39,27 +39,27 @@ async def handle_order_history(message: Message):
     await message.answer(text)
 
 
-@router.message(F.text == "🛒 Корзина")
-async def handle_cart(message: Message):
-    """
-    Обработчик кнопки "Корзина".
-    Показывает содержимое текущей корзины.
-    """
-    chat_id = message.chat.id
-    cart_items = db_get_cart_items(chat_id)
-    if not cart_items:
-        await message.answer("🛒 Ваша корзина пуста.")
-        return
-
-    text = "🛒 Содержимое корзины:\n\n"
-    total = 0
-    for item in cart_items:
-        subtotal = float(item.final_price) * item.quantity
-        total += subtotal
-        text += f"{item.product_name} — {item.quantity} шт. — {subtotal:.2f} руб\n"
-
-    text += f"\n💰 Итого: {total:.2f} руб"
-    await message.answer(text)
+# @router.message(F.text == "🛒 Корзина")
+# async def handle_cart(message: Message):
+#     """
+#     Обработчик кнопки "Корзина".
+#     Показывает содержимое текущей корзины.
+#     """
+#     chat_id = message.chat.id
+#     cart_items = db_get_cart_items(chat_id)
+#     if not cart_items:
+#         await message.answer("🛒 Ваша корзина пуста.")
+#         return
+#
+#     text = "🛒 Содержимое корзины:\n\n"
+#     total = 0
+#     for item in cart_items:
+#         subtotal = float(item.final_price) * item.quantity
+#         total += subtotal
+#         text += f"{item.product_name} — {item.quantity} шт. — {subtotal:.2f} руб\n"
+#
+#     text += f"\n💰 Итого: {total:.2f} руб"
+#     await message.answer(text)
 
 
 @router.message(F.text == "Главное меню")
