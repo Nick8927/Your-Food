@@ -37,6 +37,12 @@ async def command_start(message: Message):
 
 @router.message(Text("🚀 Начать"))
 async def handle_start_button(message: Message):
+    """обработка нажатия кнопки 'Начать"""
+    await handle_start(message)
+
+
+async def handle_start(message: Message):
+    """обработка нажатия кнопки 'Начать'"""
     await register_user(message)
 
 
