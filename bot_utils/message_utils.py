@@ -11,6 +11,7 @@ def text_for_caption(name, description, price) -> str:
 
 
 def counting_products_from_cart(chat_id, user_text):
+    """считает количество продуктов в корзине и формирует текст для сообщения"""
     products = db_get_final_cart_items(chat_id)
     if products:
         text = f'<b>{user_text}</b>\n\n'

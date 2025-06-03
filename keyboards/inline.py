@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database.utils import db_get_all_category, db_get_finally_price, db_get_product
+from database.utils import db_get_all_category, db_get_finally_price, db_get_product, db_get_product_for_delete
 
 
 def generate_category_menu(chat_id):
@@ -54,3 +54,16 @@ def confirm_order_inline_button() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📦 Оформить заказ", callback_data="confirm_order")]
     ])
+
+
+
+def cart_actions_keyboard() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.row(
+        InlineKeyboardButton(text='📦 Оформить заказ', callback_data='confirm_order'),
+        InlineKeyboardButton(text='➖ Убрать товар', callback_data='choose_to_remove'),
+        InlineKeyboardButton(text='➕ Добавить товар', callback_data='choose_to_add')
+    )
+
+    return builder.as_markup()

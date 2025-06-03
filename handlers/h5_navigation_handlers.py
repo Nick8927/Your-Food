@@ -2,7 +2,7 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message
 from aiogram.exceptions import TelegramBadRequest
 
-from handlers.order_handler import handle_make_order
+from handlers.h3_order_handler import handle_make_order
 
 router = Router()
 
