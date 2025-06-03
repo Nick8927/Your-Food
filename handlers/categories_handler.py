@@ -31,8 +31,9 @@ async def return_to_category(callback: CallbackQuery):
     message_id = callback.message.message_id
 
     await callback.bot.edit_message_text(
-        text="Выберите категорию",
+        text="Выберите категорию 🔽",
         chat_id=chat_id,
         message_id=message_id,
         reply_markup=generate_category_menu(chat_id)
     )
+

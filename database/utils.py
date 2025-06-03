@@ -195,10 +195,7 @@ def db_upsert_final_cart_item(cart_id, product_name, total_price, total_products
         print(f"[db_upsert_cart_item] Ошибка: {e}")
         return 'error'
 
-    except Exception as e:
-        db_session.rollback()
-        print(f"[db_upsert_cart_item] Ошибка: {e}")
-        return 'error'
+
 
 # if __name__ == "__main__":
 #     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
