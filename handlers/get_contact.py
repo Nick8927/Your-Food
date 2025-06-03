@@ -21,7 +21,7 @@ async def update_info_user(message: Message):
     await show_main_menu(message)
 
 
-async def show_main_menu(message):
+async def show_main_menu(message: Message):
     """показ основного меню"""
     await message.answer(
         text="Сделайте выбор",
