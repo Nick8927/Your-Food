@@ -37,6 +37,7 @@ def show_product_by_category(category_id: int) -> InlineKeyboardMarkup:
     )
     return builder.as_markup()
 
+
 def quantity_cart_controls(quantity=1) -> InlineKeyboardMarkup:
     """кнопка для изменения количества товара в корзине"""
     builder = InlineKeyboardBuilder()
@@ -46,3 +47,10 @@ def quantity_cart_controls(quantity=1) -> InlineKeyboardMarkup:
     builder.button(text='Положить в корзину  🛒', callback_data='положить в корзину')
     builder.adjust(3, 1)
     return builder.as_markup(resize_keyboard=True)
+
+
+def confirm_order_inline_button() -> InlineKeyboardMarkup:
+    """Кнопка '📦 Оформить заказ' под корзиной"""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📦 Оформить заказ", callback_data="confirm_order")]
+    ])
