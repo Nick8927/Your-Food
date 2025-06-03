@@ -6,7 +6,6 @@ from database.base import engine
 from sqlalchemy import select, join
 from sqlalchemy.sql import func
 
-
 with Session(engine) as session:
     db_session = session
 
@@ -196,6 +195,14 @@ def db_upsert_final_cart_item(cart_id, product_name, total_price, total_products
         return 'error'
 
 
+def db_get_final_cart_items(chat_id: int):
+    """получение всех товаров в финальной корзине"""
+    query = select(FinallyCarts.product_name,
+                   FinallyCarts.quantity,
+                   FinallyCarts.final_price,
+                   FinallyCarts.cart_id
+                   ).join(Carts).join(Users).where(Users.telegram == chat_id)
+    return db_session.execute(query).fetchall()
 
 # if __name__ == "__main__":
 #     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
