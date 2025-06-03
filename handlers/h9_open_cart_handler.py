@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 
 from database.utils import db_get_cart_items
-from keyboards.inline import confirm_order_inline_button
+from keyboards.inline import confirm_order_inline_button, cart_actions_keyboard
 
 router = Router()
 
@@ -36,4 +36,4 @@ async def show_cart(chat_id: int, send_fn):
 
     text += f"\n💰 Итого: {total:.2f} руб"
 
-    await send_fn(text, reply_markup=confirm_order_inline_button())
+    await send_fn(text, reply_markup=cart_actions_keyboard())

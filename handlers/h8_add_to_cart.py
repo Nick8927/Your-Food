@@ -2,7 +2,7 @@ from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery
 
 from database.utils import db_get_user_cart, db_upsert_final_cart_item
-from handlers.navigation_handlers import return_to_category_menu
+from handlers.h5_navigation_handlers import return_to_category_menu
 
 router = Router()
 
