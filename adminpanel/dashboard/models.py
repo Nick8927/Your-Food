@@ -9,6 +9,8 @@ class Users(models.Model):
 
     class Meta:
         db_table = 'users'
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
 
     def __str__(self):
         return self.name
@@ -20,6 +22,8 @@ class Categories(models.Model):
 
     class Meta:
         db_table = 'categories'
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
     def __str__(self):
         return self.category_name
@@ -35,6 +39,8 @@ class Products(models.Model):
 
     class Meta:
         db_table = 'products'
+        verbose_name = "Продукт"
+        verbose_name_plural = "Продукты"
 
     def __str__(self):
         return self.product_name
@@ -49,6 +55,8 @@ class Carts(models.Model):
 
     class Meta:
         db_table = 'carts'
+        verbose_name = "Корзина"
+        verbose_name_plural = "Корзины"
 
     def __str__(self):
         return f"Cart #{self.id} (User: {self.user.name})"
@@ -63,6 +71,8 @@ class FinallyCarts(models.Model):
 
     class Meta:
         db_table = 'finally_carts'
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
 
     def __str__(self):
         return f"{self.product_name} (x{self.quantity})"
