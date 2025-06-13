@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users, Categories, Products, Carts, FinallyCarts
+from .models import Users, Categories, Products
 
 
 @admin.register(Users)
@@ -21,12 +21,3 @@ class ProductsAdmin(admin.ModelAdmin):
     search_fields = ('product_name',)
 
 
-@admin.register(Carts)
-class CartsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'total_products', 'total_price')
-
-
-@admin.register(FinallyCarts)
-class FinallyCartsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product_name', 'final_price', 'quantity', 'cart')
-    list_filter = ('cart',)
