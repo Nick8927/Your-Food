@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 
 from database.utils import db_get_cart_items
-from keyboards.inline import confirm_order_inline_button, cart_actions_keyboard
+from keyboards.inline import  cart_actions_keyboard
 
 router = Router()
 
