@@ -7,6 +7,9 @@ class Users(models.Model):
     telegram = models.BigIntegerField(unique=True)
     phone = models.CharField(max_length=255, null=True, blank=True)
 
+    class Meta:
+        db_table = 'users'
+
     def __str__(self):
         return self.name
 
@@ -14,6 +17,9 @@ class Users(models.Model):
 class Categories(models.Model):
     """класс для таблицы категорий"""
     category_name = models.CharField(max_length=25, unique=True)
+
+    class Meta:
+        db_table = 'categories'
 
     def __str__(self):
         return self.category_name
@@ -27,6 +33,9 @@ class Products(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, related_name="products")
 
+    class Meta:
+        db_table = 'products'
+
     def __str__(self):
         return self.product_name
 
@@ -38,6 +47,9 @@ class Carts(models.Model):
     total_products = models.IntegerField(default=0)
     user = models.OneToOneField(Users, on_delete=models.CASCADE, related_name="cart")
 
+    class Meta:
+        db_table = 'carts'
+
     def __str__(self):
         return f"Cart #{self.id} (User: {self.user.name})"
 
@@ -48,6 +60,9 @@ class FinallyCarts(models.Model):
     final_price = models.DecimalField(max_digits=6, decimal_places=2)
     quantity = models.IntegerField()
     cart = models.ForeignKey(Carts, on_delete=models.CASCADE, related_name="finally_items")
+
+    class Meta:
+        db_table = 'finally_carts'
 
     def __str__(self):
         return f"{self.product_name} (x{self.quantity})"
