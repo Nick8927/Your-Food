@@ -1,12 +1,11 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, select
 from database.base import engine, Base
 from database.models import Categories, Products
+from database.models.orders import Orders
 
 def init_db():
     with engine.connect() as conn:
-        # conn.execute(text("DROP SCHEMA public CASCADE"))
-
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS public"))
         conn.commit()
 
@@ -22,13 +21,22 @@ def init_db():
 
     with Session(engine) as session:
         category_map = {}
+
+
         for name in categories:
-            category = Categories(category_name=name)
-            session.add(category)
-            session.flush()
+            category = session.scalar(select(Categories).where(Categories.category_name == name))
+            if not category:
+                category = Categories(category_name=name)
+                session.add(category)
+                session.flush()
             category_map[name] = category.id
 
+
         for category_name, name, price, desc, image in products:
+            product_exists = session.scalar(select(Products).where(Products.product_name == name))
+            if product_exists:
+                continue
+
             category_id = category_map.get(category_name)
             if category_id:
                 product = Products(
@@ -43,5 +51,5 @@ def init_db():
         session.commit()
         print("База успешно инициализирована")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     init_db()
