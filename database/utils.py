@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import update, delete, select, DECIMAL
 from sqlalchemy.exc import IntegrityError
-from database.models import Users, Categories, Products, Carts, FinallyCarts
+from database.models import Users, Categories, Products, Carts, FinallyCarts, Orders
 from database.base import engine
 from sqlalchemy import select, join
 from sqlalchemy.sql import func
@@ -63,13 +63,13 @@ def db_get_finally_price(chat_id):
 
 
 def db_get_last_orders(chat_id: int, limit: int = 5):
-    """получить последние заказы пользователя"""
+    """получить последние заказы пользователя из таблицы orders"""
     query = (
-        select(FinallyCarts)
-        .join(Carts, FinallyCarts.cart_id == Carts.id)
-        .join(Users, Users.id == Carts.user_id)
+        select(Orders)
+        .join(Carts, Orders.cart_id == Carts.id)
+        .join(Users, Carts.user_id == Users.id)
         .where(Users.telegram == chat_id)
-        .order_by(FinallyCarts.id.desc())
+        .order_by(Orders.id.desc())
         .limit(limit)
     )
     return db_session.scalars(query).all()
@@ -272,6 +272,27 @@ def db_clear_final_cart(chat_id: int):
 
     query = delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id)
     db_session.execute(query)
+    db_session.commit()
+
+
+def db_save_order_history(chat_id: int):
+    """Сохраняет текущую финальную корзину в таблицу заказов"""
+    cart = db_get_user_cart(chat_id)
+    if not cart:
+        return
+
+    final_items = db_session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
+
+    for item in final_items:
+        db_session.add(
+            Orders(
+                cart_id=cart.id,
+                product_name=item.product_name,
+                quantity=item.quantity,
+                final_price=item.final_price
+            )
+        )
+
     db_session.commit()
 
 # if __name__ == "__main__":
