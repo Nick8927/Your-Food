@@ -263,6 +263,17 @@ def db_decrease_product_quantity(finally_cart_id: int):
         session.commit()
         return True
 
+
+def db_clear_final_cart(chat_id: int):
+    """Удаление всех товаров из финальной корзины пользователя"""
+    cart = db_get_user_cart(chat_id)
+    if not cart:
+        return
+
+    query = delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id)
+    db_session.execute(query)
+    db_session.commit()
+
 # if __name__ == "__main__":
 #     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
 #     update_product_image("Наполеон", "media/cakes/cake_napoleon.jpg")
