@@ -295,42 +295,10 @@ def db_save_order_history(chat_id: int):
 
     db_session.commit()
 
-# if __name__ == "__main__":
-#     update_product_image("Медовик", "media/cakes/hone_cake.jpg")
-#     update_product_image("Наполеон", "media/cakes/cake_napoleon.jpg")
-#     update_product_image("Птичье молоко", "media/cakes/cake_milk.jpg")
 
-#     products = [
-# {
-#     "product_name": "Овсяное печенье",
-#     "description": "Домашнее овсяное печенье",
-#     "image": "media/cookies/ovsyanoe.jpg",
-#     "price": 15.50,
-#     "category_name": "Печенье"
-# },
-# {
-#     "product_name": "Шоколадное печенье",
-#     "description": "Печенье с кусочками шоколада",
-#     "image": "media/cookies/choco_cookie.jpg",
-#     "price": 22.00,
-#     "category_name": "Печенье"
-# },
-# {
-#     "product_name": "Кокосовое печенье",
-#     "description": "С хрустящей корочкой и кокосовой стружкой",
-#     "image": "media/cookies/kokos_cookie.jpg",
-#     "price": 28.00,
-#     "category_name": "Печенье"
-# },
+def db_get_user_phone(chat_id: int) -> str:
+    """Получение номера телефона пользователя по Telegram ID (гарантированно есть)"""
+    query = select(Users.phone).where(Users.telegram == chat_id)
+    return db_session.execute(query).fetchone()[0]
 
-#     {
-#         "product_name": "Медовик",
-#         "description": "Торт с медом и коричневым сахаром",
-#         "image": "media\cakes\hone_cake.jpg",
-#         "price": 50.00,
-#         "category_name": "Торты"
-#
-#     }
-# ]
 
-# db_add_products(products)
