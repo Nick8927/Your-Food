@@ -2,7 +2,7 @@ from aiogram import Router, Bot, F
 from aiogram.types import CallbackQuery
 from bot_utils.message_utils import counting_products_from_cart
 from config import MANAGER_CHAT_ID
-from database.utils import db_clear_final_cart, db_save_order_history
+from database.utils import db_clear_final_cart, db_save_order_history, db_get_user_phone
 
 router = Router()
 
@@ -11,8 +11,12 @@ router = Router()
 async def handle_confirm_order(callback: CallbackQuery, bot: Bot):
     """обработчик кнопки '📦 Оформить заказ' """
     user = callback.from_user
+    phone = db_get_user_phone(user.id)
     mention = f'<a href="tg://user?id={user.id}">{user.full_name}</a>'
-    user_text = f"📝 Новый заказ от {mention}:"
+    user_text = (
+        f"Новый заказ от {mention}\n"
+        f"<b>Телефон:</b> {phone}"
+    )
     context = counting_products_from_cart(user.id, user_text)
 
     if not context:
