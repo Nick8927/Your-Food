@@ -314,7 +314,7 @@ def db_update_user_language(telegram_id: int, language: str):
         session.commit()
 
 
-def db_delete_user_by_telegram_id(chat_id: int) -> bool:
+def db_delete_user_by_telegram_id(chat_id: int):
     """Удаляем пользователя из БД по его Telegram ID"""
     try:
         with get_session() as session:
