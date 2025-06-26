@@ -312,3 +312,26 @@ def db_update_user_language(telegram_id: int, language: str):
             update(Users).where(Users.telegram == telegram_id).values(language=language)
         )
         session.commit()
+
+
+def db_delete_user_by_telegram_id(chat_id: int) -> bool:
+    """Удаляем пользователя из БД по его Telegram ID"""
+    try:
+        with get_session() as session:
+            user = session.scalar(select(Users).where(Users.telegram == chat_id))
+            if not user:
+                return False
+
+            session.execute(
+                delete(Carts).where(Carts.user_id == user.id)
+            )
+
+            session.execute(
+                delete(Users).where(Users.telegram == chat_id)
+            )
+            session.commit()
+            return True
+    except Exception as e:
+        print(f"[db_delete_user_by_telegram_id] Ошибка: {e}")
+        return False
+
