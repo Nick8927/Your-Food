@@ -1,11 +1,11 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database.utils import db_get_all_category, db_get_finally_price, db_get_product, db_get_product_for_delete
+from database.utils import db_get_all_category, db_get_finally_price, db_get_product
 
 
 def generate_category_menu(chat_id):
     """
-    Генерация inline-клавиатуры с категориями товаров.
+    генерация inline-клавиатуры с категориями товаров.
 
     :param chat_id: ID пользователя для получения суммы корзины.
     :return: InlineMarkup с кнопками категорий и корзинки.
@@ -49,15 +49,8 @@ def quantity_cart_controls(quantity=1) -> InlineKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
-def confirm_order_inline_button() -> InlineKeyboardMarkup:
-    """Кнопка '📦 Оформить заказ' под корзиной"""
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📦 Оформить заказ", callback_data="confirm_order")]
-    ])
-
-
-
 def cart_actions_keyboard() -> InlineKeyboardMarkup:
+    """кнопки оформления заказа и добавления/удаления товара в корзину"""
     builder = InlineKeyboardBuilder()
 
     builder.row(
@@ -66,4 +59,33 @@ def cart_actions_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text='➕ Добавить товар', callback_data='choose_to_add')
     )
 
+    return builder.as_markup()
+
+
+def get_settings_keyboard() -> InlineKeyboardMarkup:
+    """кнопки настроек"""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🌐 Сменить язык", callback_data="change_language")
+    builder.button(text="🗑 Удалить аккаунт", callback_data="delete_account")
+    builder.button(text="↩️ Назад", callback_data="back_to_menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def get_language_keyboard() -> InlineKeyboardMarkup:
+    """кнопки выбора языка"""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🇷🇺 Русский", callback_data="lang_ru")
+    builder.button(text="🇬🇧 English", callback_data="lang_en")
+    builder.button(text="↩️ Назад", callback_data="settings_menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def get_delete_confirm_keyboard() -> InlineKeyboardMarkup:
+    """Подтверждение удаления аккаунта"""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Да, удалить", callback_data="confirm_delete")
+    builder.button(text="❌ Отмена", callback_data="settings_menu")
+    builder.adjust(1)
     return builder.as_markup()
