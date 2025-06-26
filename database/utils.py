@@ -303,3 +303,12 @@ def db_get_user_phone(chat_id: int) -> str:
     with get_session() as session:
         query = select(Users.phone).where(Users.telegram == chat_id)
         return session.execute(query).fetchone()[0]
+
+
+def db_update_user_language(telegram_id: int, language: str):
+    """Обновляет язык пользователя в БД """
+    with get_session() as session:
+        session.execute(
+            update(Users).where(Users.telegram == telegram_id).values(language=language)
+        )
+        session.commit()
