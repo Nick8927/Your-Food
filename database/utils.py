@@ -298,7 +298,7 @@ def db_save_order_history(chat_id: int):
         session.commit()
 
 
-def db_get_user_phone(chat_id: int) -> str:
+def db_get_user_phone(chat_id: int):
     """Получение номера телефона пользователя по Telegram ID"""
     with get_session() as session:
         query = select(Users.phone).where(Users.telegram == chat_id)
@@ -315,23 +315,24 @@ def db_update_user_language(telegram_id: int, language: str):
 
 
 def db_delete_user_by_telegram_id(chat_id: int):
-    """Удаляем пользователя из БД по его Telegram ID"""
+    """Удаление пользователя по Telegram ID"""
     try:
         with get_session() as session:
             user = session.scalar(select(Users).where(Users.telegram == chat_id))
             if not user:
                 return False
 
-            session.execute(
-                delete(Carts).where(Carts.user_id == user.id)
-            )
+            cart = session.scalar(select(Carts).where(Carts.user_id == user.id))
 
-            session.execute(
-                delete(Users).where(Users.telegram == chat_id)
-            )
+            if cart:
+                session.execute(delete(Orders).where(Orders.cart_id == cart.id))
+                session.execute(delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id))
+                session.execute(delete(Carts).where(Carts.id == cart.id))
+
+            session.execute(delete(Users).where(Users.id == user.id))
             session.commit()
             return True
+
     except Exception as e:
         print(f"[db_delete_user_by_telegram_id] Ошибка: {e}")
         return False
-
