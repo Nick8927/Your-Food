@@ -58,6 +58,7 @@ def cart_actions_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text='➖ Убрать товар', callback_data='choose_to_remove'),
         InlineKeyboardButton(text='➕ Добавить товар', callback_data='choose_to_add')
     )
+    builder.adjust(1, 2)
 
     return builder.as_markup()
 
