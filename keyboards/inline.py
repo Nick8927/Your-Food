@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database.utils import db_get_all_category, db_get_finally_price, db_get_product
+from database.utils import db_get_all_category, db_get_finally_price, db_get_product, db_get_addons_by_product
 
 
 def generate_category_menu(chat_id):
@@ -88,5 +88,19 @@ def get_delete_confirm_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="✅ Да, удалить", callback_data="confirm_delete")
     builder.button(text="❌ Отмена", callback_data="settings_menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
+    """Выбор добавок к товару"""
+    addons = db_get_addons_by_product(product_id)
+    builder = InlineKeyboardBuilder()
+    for addon in addons:
+        builder.button(
+            text=f"{addon.name} (+{addon.price}₽)",
+            callback_data=f"addon_{addon.id}"
+        )
+    builder.button(text="✅ Без добавок", callback_data="no_addon")
     builder.adjust(1)
     return builder.as_markup()
