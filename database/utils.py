@@ -343,4 +343,6 @@ def db_get_addons_by_product(product_id: int):
     """Получить все доступные добавки к товару"""
     with get_session() as session:
         query = select(ProductAddons).where(ProductAddons.product_id == product_id)
+        print(query, ProductAddons.product_id)
         return session.scalars(query).all()
+

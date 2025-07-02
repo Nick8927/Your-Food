@@ -20,3 +20,5 @@ media/*
 
 database/models/models.py
 check_image.py
+
+TODO.txt
