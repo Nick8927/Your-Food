@@ -6,7 +6,7 @@ from handlers import (
     h1_on_startup, h2_get_contact, h3_order_handler,h4_categories_handler,
     h5_navigation_handlers, h6_product_detail,h7_cart_quantity, h8_add_to_cart,
     h9_open_cart_handler,h10_confirm_order, h11_cart_modify, h12_settings,
-    h13_language, h14_delete_account)
+    h13_language, h14_delete_account, h15_addons)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -24,7 +24,8 @@ dp.include_router(h10_confirm_order.router)
 dp.include_router(h11_cart_modify.router)
 dp.include_router(h12_settings.router)
 dp.include_router(h13_language.router)
-dp.include_router(h14_delete_account.router,)
+dp.include_router(h14_delete_account.router)
+dp.include_router(h15_addons.router)
 
 
 

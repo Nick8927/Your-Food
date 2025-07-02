@@ -25,7 +25,14 @@ async def add_to_cart(callback: CallbackQuery, bot: Bot):
         await bot.send_message(chat_id=chat_id, text="Пожалуйста, сначала выберите товар.")
         return
 
-    await bot.delete_message(chat_id=chat_id, message_id=message.message_id)
+    try:
+        await bot.delete_message(chat_id=chat_id, message_id=message.message_id + 1)
+    except Exception as e:
+        print(f"[!] Не удалось удалить сообщение с добавками: {e}")
+    try:
+        await bot.delete_message(chat_id=chat_id, message_id=message.message_id)
+    except Exception as e:
+        print(f"[!] Не удалось удалить сообщение с продуктом: {e}")
 
     result = db_upsert_final_cart_item(
         cart_id=cart.id,
@@ -41,6 +48,5 @@ async def add_to_cart(callback: CallbackQuery, bot: Bot):
             await bot.send_message(chat_id=chat_id, text='Количество изменено 💫')
         case 'error':
             await bot.send_message(chat_id=chat_id, text='Произошла ошибка при добавлении ❌')
-
 
     await return_to_category_menu(message, bot)

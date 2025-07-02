@@ -30,7 +30,7 @@ def show_product_by_category(category_id: int) -> InlineKeyboardMarkup:
     """кнопка для показа продуктов по категориям"""
     products = db_get_product(category_id)
     builder = InlineKeyboardBuilder()
-    [builder.button(text=product.product_name, callback_data=f'product_{product.id}') for product in products]
+    [builder.button(text=product.product_name, callback_data=f'product_view_{product.id}') for product in products]
     builder.adjust(2)
     builder.row(
         InlineKeyboardButton(text="⬅ Назад", callback_data='return_to_category')
@@ -98,7 +98,7 @@ def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     for addon in addons:
         builder.button(
-            text=f"{addon.name} (+{addon.price}₽)",
+            text=f"{addon.name} (+{addon.price}BYN)",
             callback_data=f"addon_{addon.id}"
         )
     builder.button(text="✅ Без добавок", callback_data="no_addon")
