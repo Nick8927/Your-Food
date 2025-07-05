@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import update, delete, select, DECIMAL, join
+from sqlalchemy import update, delete, select, DECIMAL, join, func
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql import func
 
 from database.base import engine
 from database.models import (Users, Categories, Products, Carts,
@@ -84,12 +83,14 @@ def db_get_cart_items(chat_id: int):
     """получить все товары текущей корзины пользователя"""
     with get_session() as session:
         query = (
-            select(FinallyCarts)
+            select(FinallyCarts, func.coalesce(func.sum(CartAddons.price), 0).label("addons_total"))
             .join(Carts, FinallyCarts.cart_id == Carts.id)
             .join(Users, Users.id == Carts.user_id)
+            .outerjoin(CartAddons, CartAddons.cart_id == Carts.id)
             .where(Users.telegram == chat_id)
+            .group_by(FinallyCarts.id)
         )
-        return session.scalars(query).all()
+        return session.execute(query).all()
 
 
 def db_get_product(category_id):
