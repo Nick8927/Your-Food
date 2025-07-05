@@ -5,18 +5,19 @@ from database.utils import (
     db_get_product_by_id,
     db_get_user_cart,
     db_update_to_cart,
+    db_get_cart_items,
     db_get_addons_by_product
 )
 from keyboards.inline import quantity_cart_controls, generate_addons_option_buttons
-from bot_utils.message_utils import text_for_caption
 from keyboards.reply import phone_button
+from bot_utils.message_utils import text_for_caption
 
 router = Router()
 
 
 @router.callback_query(F.data.startswith("product_view_"))
 async def show_product_detail(callback: CallbackQuery, bot: Bot):
-    """Показывает детальную информацию о продукте если пользователь авторизован"""
+    """Показывает детальную информацию о продукте, если пользователь авторизован"""
     chat_id = callback.message.chat.id
     message_id = callback.message.message_id
 
@@ -29,7 +30,20 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
     if user_cart:
         db_update_to_cart(price=product.price, cart_id=user_cart.id)
 
-        caption = text_for_caption(product.product_name, product.description, product.price)
+        cart_items = db_get_cart_items(chat_id)
+        addons_total = 0
+        for item in cart_items:
+            if item["product_name"] == product.product_name:
+                addons_total = item["addons_total"]
+                break
+
+        caption = text_for_caption(
+            name=product.product_name,
+            description=product.description,
+            base_price=float(product.price),
+            addon_price=float(addons_total)
+        )
+
         product_image = FSInputFile(path=product.image)
 
         await bot.send_photo(
@@ -51,8 +65,9 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
     else:
         await ask_for_phone(chat_id, bot)
 
-async def ask_for_phone(chat_id: int, bot: Bot) -> None:
-    """Отправка запроса на номер телефона, если пользователь не авторизован"""
+
+async def ask_for_phone(chat_id, bot: Bot):
+    """Запрос номера телефона, если пользователь не авторизован"""
     await bot.send_message(
         chat_id=chat_id,
         text='Предоставьте Ваш номер телефона, чтобы сделать заказ',

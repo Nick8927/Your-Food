@@ -1,13 +1,18 @@
 from database.utils import db_get_final_cart_items
 
 
-def text_for_caption(name, description, price) -> str:
-    """формирует текст для описания продукта в сообщении под изображением"""
-    return (
+def text_for_caption(name, description, base_price, addon_price=0.0):
+    """Формирует текст описания товара с учетом добавок"""
+    total_price = float(base_price) + float(addon_price)
+    text = (
         f"<b>{name}</b>\n\n"
-        f"<b>Описание:</b>{description}\n\n"
-        f"<b>Цена:</b> {price:.2f} BYN"
+        f"<b>Описание:</b> {description}\n\n"
+        f"<b>Цена:</b> {total_price:.2f} BYN"
     )
+    if addon_price:
+        text += f"\n(включая добавки: +{addon_price:.2f} BYN)"
+    return text
+
 
 
 def counting_products_from_cart(chat_id, user_text):

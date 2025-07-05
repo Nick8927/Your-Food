@@ -1,8 +1,10 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery
 
-from database.utils import db_get_addon_by_id
-from keyboards.inline import generate_addons_keyboard
+from bot_utils.message_utils import text_for_caption
+from database.utils import db_get_addon_by_id, db_add_addon_to_cart, db_get_user_cart, db_get_product_by_id, \
+    db_get_addons_total_price
+from keyboards.inline import generate_addons_keyboard, generate_back_to_menu_keyboard
 
 router = Router()
 
@@ -19,12 +21,45 @@ async def handle_product_selected(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("addon_"))
-async def handle_addon_selected(callback: CallbackQuery):
-    """добавить добавку к товару"""
+async def handle_addon_selected(callback: CallbackQuery, bot: Bot):
+    """Добавить добавку к товару, обновить caption изображения"""
     addon_id = int(callback.data.split("_")[1])
     addon = db_get_addon_by_id(addon_id)
 
-    await callback.message.edit_text(f"🧩 Добавка {addon.name} добавлена!")
+    success = db_add_addon_to_cart(callback.from_user.id, addon_id)
+    if not success:
+        await callback.answer("❌ Не удалось добавить добавку")
+        return
+
+    cart = db_get_user_cart(callback.from_user.id)
+    if not cart:
+        await callback.answer("❌ Корзина не найдена")
+        return
+
+    product = db_get_product_by_id(addon.product_id)
+    addons_total = db_get_addons_total_price(cart.id)
+
+    new_caption = text_for_caption(
+        name=product.product_name,
+        description=product.description,
+        base_price=float(product.price),
+        addon_price=addons_total
+    )
+
+    try:
+        await bot.edit_message_caption(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id - 1,
+            caption=new_caption,
+            parse_mode='HTML'
+        )
+    except Exception as e:
+        print(f"ОШИБКА: Не удалось обновить caption: {e}")
+
+    await callback.message.edit_text(
+        f"🧩 Добавка {addon.name} добавлена!",
+        reply_markup=generate_back_to_menu_keyboard()
+    )
     await callback.answer()
 
 
