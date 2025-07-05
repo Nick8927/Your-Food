@@ -1,5 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
+
+from database.utils import db_get_addon_by_id
 from keyboards.inline import generate_addons_keyboard
 
 router = Router()
@@ -20,8 +22,9 @@ async def handle_product_selected(callback: CallbackQuery):
 async def handle_addon_selected(callback: CallbackQuery):
     """добавить добавку к товару"""
     addon_id = int(callback.data.split("_")[1])
+    addon = db_get_addon_by_id(addon_id)
 
-    await callback.message.edit_text(f"🧩 Добавка добавлена! ID: {addon_id}")
+    await callback.message.edit_text(f"🧩 Добавка {addon.name} добавлена!")
     await callback.answer()
 
 
