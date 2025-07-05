@@ -54,15 +54,30 @@ def db_get_all_category():
 
 
 def db_get_finally_price(chat_id):
-    """получение итоговой цены"""
+    """получаем финальную сумму заказа: товары + добавки"""
     with get_session() as session:
-        query = (
-            select(func.sum(FinallyCarts.final_price))
-            .select_from(join(Carts, FinallyCarts, Carts.id == FinallyCarts.cart_id))
+        cart = (
+            session.query(Carts)
             .join(Users, Users.id == Carts.user_id)
-            .where(Users.telegram == chat_id)
+            .filter(Users.telegram == chat_id)
+            .first()
         )
-        return session.execute(query).fetchone()[0]
+        if not cart:
+            return 0.0
+
+        product_total = (
+            session.query(func.coalesce(func.sum(FinallyCarts.final_price), 0))
+            .filter(FinallyCarts.cart_id == cart.id)
+            .scalar()
+        )
+
+        addons_total = (
+            session.query(func.coalesce(func.sum(CartAddons.price), 0))
+            .filter(CartAddons.cart_id == cart.id)
+            .scalar()
+        )
+
+        return float(product_total + addons_total)
 
 
 def db_get_last_orders(chat_id: int, limit: int = 5):
@@ -386,3 +401,14 @@ def db_add_addon_to_cart(telegram_id: int, addon_id: int):
         session.add(cart_addon)
         session.commit()
         return True
+
+
+def db_get_addons_total_price(cart_id: int) -> float:
+    """Получить сумму всех добавок в корзине"""
+    with get_session() as session:
+        result = (
+            session.query(func.coalesce(func.sum(CartAddons.price), 0))
+            .filter(CartAddons.cart_id == cart_id)
+            .scalar()
+        )
+        return float(result)

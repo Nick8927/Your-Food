@@ -113,3 +113,10 @@ def generate_addons_option_buttons(product_id: int) -> InlineKeyboardMarkup:
     builder.button(text="⬅ Назад", callback_data="return_to_category")
     builder.adjust(1)
     return builder.as_markup()
+
+
+def generate_back_to_menu_keyboard() -> InlineKeyboardMarkup:
+    """Кнопка для возврата в категорию после выбора добавки"""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="⬅ Назад", callback_data="return_to_category")
+    return builder.as_markup()
