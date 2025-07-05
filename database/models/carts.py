@@ -1,6 +1,7 @@
 from sqlalchemy import DECIMAL, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base
+from .product_addons import CartAddons
 from .users import Users
 
 
@@ -13,6 +14,8 @@ class Carts(Base):
 
     user_cart: Mapped["Users"] = relationship(back_populates="carts")
     finally_id: Mapped[int] = relationship("FinallyCarts", back_populates="user_cart")
+    addons: Mapped[list[CartAddons]] = relationship("CartAddons", back_populates="cart", cascade="all, delete-orphan")
+
 
     def __str__(self):
         return str(self.id)
