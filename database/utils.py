@@ -80,17 +80,24 @@ def db_get_last_orders(chat_id: int, limit: int = 5):
 
 
 def db_get_cart_items(chat_id: int):
-    """получить все товары текущей корзины пользователя"""
+    """получение всех товаров в корзине"""
     with get_session() as session:
         query = (
-            select(FinallyCarts, func.coalesce(func.sum(CartAddons.price), 0).label("addons_total"))
+            select(
+                FinallyCarts.id,
+                FinallyCarts.product_name,
+                FinallyCarts.final_price,
+                FinallyCarts.quantity,
+                FinallyCarts.cart_id,
+                func.coalesce(func.sum(CartAddons.price), 0).label("addons_total")
+            )
             .join(Carts, FinallyCarts.cart_id == Carts.id)
             .join(Users, Users.id == Carts.user_id)
             .outerjoin(CartAddons, CartAddons.cart_id == Carts.id)
             .where(Users.telegram == chat_id)
             .group_by(FinallyCarts.id)
         )
-        return session.execute(query).all()
+        return session.execute(query).mappings().all()
 
 
 def db_get_product(category_id):
