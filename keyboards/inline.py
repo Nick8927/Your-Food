@@ -107,7 +107,7 @@ def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
 
 
 def generate_addons_option_buttons(product_id: int) -> InlineKeyboardMarkup:
-    """Кнопка выбора допов (если они есть)"""
+    """Кнопка выбора допов"""
     builder = InlineKeyboardBuilder()
     builder.button(text="➕ Выбрать добавку", callback_data=f"product_{product_id}")
     builder.button(text="⬅ Назад", callback_data="return_to_category")
