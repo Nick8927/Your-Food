@@ -3,9 +3,9 @@ from sqlalchemy import update, delete, select, DECIMAL, join
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
-from database.models import Users, Categories, Products, Carts, FinallyCarts, Orders
 from database.base import engine
-from database.models.product_addons import ProductAddons
+from database.models import (Users, Categories, Products, Carts,
+                             FinallyCarts, Orders, ProductAddons, CartAddons)
 
 
 def get_session():
@@ -353,4 +353,28 @@ def db_get_addon_by_id(addon_id: int) -> ProductAddons:
         return session.scalar(query)
 
 
+def db_add_addon_to_cart(telegram_id: int, addon_id: int):
+    """Добавить добавку в корзину"""
+    with get_session() as session:
+        addon = session.get(ProductAddons, addon_id)
+        if not addon:
+            return False
 
+        cart = (
+            session.query(Carts)
+            .join(Users)
+            .filter(Users.telegram == telegram_id)
+            .first()
+        )
+        if not cart:
+            return False
+
+        cart_addon = CartAddons(
+            cart_id=cart.id,
+            addon_id=addon.id,
+            name=addon.name,
+            price=addon.price
+        )
+        session.add(cart_addon)
+        session.commit()
+        return True
