@@ -79,8 +79,7 @@ async def decrease_quantity(callback: CallbackQuery):
 
     if not cart_items:
         await callback.message.edit_text(
-            "🛒 Ваш заказ пуст, сделайте его заново.",
-            reply_markup=back_to_main_menu()
+            "🛒 Ваша корзина пуста. Перейдите в меню для формирования заказа.",
         )
     else:
         text = generate_cart_text(cart_items)
