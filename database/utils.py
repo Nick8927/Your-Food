@@ -71,6 +71,9 @@ def db_get_finally_price(chat_id):
             .scalar()
         )
 
+        if product_total == 0:
+            return 0.0
+
         addons_total = (
             session.query(func.coalesce(func.sum(CartAddons.price), 0))
             .filter(CartAddons.cart_id == cart.id)
