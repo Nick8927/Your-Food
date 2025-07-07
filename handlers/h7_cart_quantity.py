@@ -41,7 +41,7 @@ async def change_product_quantity(callback: CallbackQuery, bot: Bot):
     caption = text_for_caption(
         name=product.product_name,
         description=product.description,
-        price=total_price
+        base_price=total_price
     )
 
     try:
