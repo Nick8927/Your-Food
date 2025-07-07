@@ -2,7 +2,7 @@ from database.utils import db_get_final_cart_items
 
 
 def text_for_caption(name, description, base_price, addon_price=0.0):
-    """Формирует текст описания товара с учетом добавок"""
+    """формирует текст описания товара с учетом добавок"""
     total_price = float(base_price) + float(addon_price)
     text = (
         f"<b>{name}</b>\n\n"
