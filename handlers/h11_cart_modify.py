@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -10,7 +10,6 @@ from database.utils import (
     db_get_cart_items
 )
 from keyboards.inline import cart_actions_keyboard
-from keyboards.reply import back_to_main_menu
 
 router = Router()
 
@@ -69,7 +68,7 @@ async def increase_quantity(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("decrease_"))
-async def decrease_quantity(callback: CallbackQuery):
+async def decrease_quantity(callback: CallbackQuery, bot: Bot):
     """Обработчик кнопки уменьшения количества."""
     cart_id = int(callback.data.split("_")[1])
     db_decrease_product_quantity(cart_id)
@@ -78,8 +77,19 @@ async def decrease_quantity(callback: CallbackQuery):
     cart_items = db_get_cart_items(user_id)
 
     if not cart_items:
-        await callback.message.edit_text(
-            "🛒 Ваша корзина пуста. Перейдите в меню для формирования заказа.",
+        try:
+            await callback.message.delete()
+
+            await bot.delete_message(
+                chat_id=callback.message.chat.id,
+                message_id=callback.message.message_id - 1
+            )
+        except Exception as e:
+            print(f"==**== Не удалось удалить одно из сообщений: {e}")
+
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text="🛒 Ваша корзина пуста. Перейдите в меню для формирования заказа."
         )
     else:
         text = generate_cart_text(cart_items)
