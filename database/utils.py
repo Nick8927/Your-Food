@@ -417,44 +417,46 @@ def db_get_addons_total_price(cart_id: int):
         return float(result)
 
 
-def db_remove_addon_from_cart(user_telegram_id: int, addon_id: int):
+def db_remove_addon_from_cart(telegram_id: int, addon_id: int):
     """Удалить добавку из корзины пользователя"""
     with get_session() as session:
-        user = session.query(Users).filter_by(telegram=user_telegram_id).first()
-        if not user:
-            return False
-
-        cart = session.query(Carts).filter_by(user_id=user.id).first()
+        cart = (
+            session.query(Carts)
+            .join(Users)
+            .filter(Users.telegram == telegram_id)
+            .first()
+        )
         if not cart:
             return False
 
-        row = (
+        addon = (
             session.query(CartAddons)
-            .filter_by(cart_id=cart.id, addon_id=addon_id)
+            .filter(CartAddons.cart_id == cart.id, CartAddons.addon_id == addon_id)
             .first()
         )
-        if not row:
+        if not addon:
             return False
 
-        session.delete(row)
+        session.delete(addon)
         session.commit()
         return True
 
 
-def db_is_addon_in_cart(user_telegram_id: int, addon_id: int):
-    """Проверяет, есть ли добавка в корзине"""
+def db_is_addon_in_cart(user_telegram_id: int, addon_id: int) -> bool:
+    """Проверяет, есть ли добавка в корзине пользователя"""
     with get_session() as session:
-        user = session.query(Users).filter_by(telegram=user_telegram_id).first()
-        if not user:
-            return False
-
-        cart = session.query(Carts).filter_by(user_id=user.id).first()
+        cart = (
+            session.query(Carts)
+            .join(Users, Users.id == Carts.user_id)
+            .filter(Users.telegram == user_telegram_id)
+            .first()
+        )
         if not cart:
             return False
 
-        row = (
+        exists = (
             session.query(CartAddons)
             .filter_by(cart_id=cart.id, addon_id=addon_id)
             .first()
         )
-        return bool(row)
+        return exists is not None
