@@ -406,7 +406,7 @@ def db_add_addon_to_cart(telegram_id: int, addon_id: int):
         return True
 
 
-def db_get_addons_total_price(cart_id: int) -> float:
+def db_get_addons_total_price(cart_id: int):
     """Получить сумму всех добавок в корзине"""
     with get_session() as session:
         result = (
@@ -415,3 +415,30 @@ def db_get_addons_total_price(cart_id: int) -> float:
             .scalar()
         )
         return float(result)
+
+
+def db_remove_addon_from_cart(user_telegram_id: int, addon_id: int):
+    """Удалить добавку из корзины пользователя"""
+    with get_session() as session:
+        user = session.query(Users).filter_by(telegram=user_telegram_id).first()
+        if not user:
+            return False
+
+        cart = session.query(Carts).filter_by(user_id=user.id).first()
+        if not cart:
+            return False
+
+        row = (
+            session.query(CartAddons)
+            .filter_by(cart_id=cart.id, addon_id=addon_id)
+            .first()
+        )
+        if not row:
+            return False
+
+        session.delete(row)
+        session.commit()
+        return True
+
+
+
