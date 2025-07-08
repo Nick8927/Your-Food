@@ -441,4 +441,20 @@ def db_remove_addon_from_cart(user_telegram_id: int, addon_id: int):
         return True
 
 
+def db_is_addon_in_cart(user_telegram_id: int, addon_id: int):
+    """Проверяет, есть ли добавка в корзине"""
+    with get_session() as session:
+        user = session.query(Users).filter_by(telegram=user_telegram_id).first()
+        if not user:
+            return False
 
+        cart = session.query(Carts).filter_by(user_id=user.id).first()
+        if not cart:
+            return False
+
+        row = (
+            session.query(CartAddons)
+            .filter_by(cart_id=cart.id, addon_id=addon_id)
+            .first()
+        )
+        return bool(row)
