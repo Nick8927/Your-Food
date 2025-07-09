@@ -442,6 +442,24 @@ def db_remove_addon_from_cart(telegram_id: int, addon_id: int):
         return True
 
 
+def db_remove_all_addons_from_cart(user_telegram_id: int) -> bool:
+    """Удалить все добавки из корзины пользователя по Telegram ID"""
+    with get_session() as session:
+        cart = (
+            session.query(Carts)
+            .join(Users, Carts.user_id == Users.id)
+            .filter(Users.telegram == user_telegram_id)
+            .first()
+        )
+
+        if not cart:
+            return False
+
+        session.query(CartAddons).filter(CartAddons.cart_id == cart.id).delete()
+        session.commit()
+        return True
+
+
 def db_is_addon_in_cart(user_telegram_id: int, addon_id: int) -> bool:
     """Проверяет, есть ли добавка в корзине пользователя"""
     with get_session() as session:

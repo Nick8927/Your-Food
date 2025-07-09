@@ -57,7 +57,7 @@ async def handle_addon_selected(callback: CallbackQuery, bot: Bot):
         print(f"ОШИБКА: Не удалось обновить caption: {e}")
 
     await callback.message.edit_text(
-        f"🧩 Добавка {addon.name} добавлена!",
+        f"🧾 Добавка {addon.name} добавлена!",
         reply_markup=generate_back_to_menu_keyboard()
     )
     await callback.answer()
