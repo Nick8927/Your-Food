@@ -7,7 +7,7 @@ from database.utils import (
     db_get_product_for_delete,
     db_increase_product_quantity,
     db_decrease_product_quantity,
-    db_get_cart_items
+    db_get_cart_items, db_clear_addons_if_cart_empty
 )
 from keyboards.inline import cart_actions_keyboard
 
@@ -77,6 +77,8 @@ async def decrease_quantity(callback: CallbackQuery, bot: Bot):
     cart_items = db_get_cart_items(user_id)
 
     if not cart_items:
+        db_clear_addons_if_cart_empty(user_id)
+
         try:
             await callback.message.delete()
 
