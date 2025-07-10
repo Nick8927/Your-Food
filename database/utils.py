@@ -387,6 +387,13 @@ def db_get_addons_by_product(product_id: int):
         return session.scalars(query).all()
 
 
+def db_get_cart_addons_by_cart_id(cart_id: int):
+    """Получить добавки, выбранные пользователем для конкретного cart_id"""
+    with get_session() as session:
+        query = select(CartAddons).where(CartAddons.cart_id == cart_id)
+        return session.scalars(query).all()
+
+
 def db_get_addon_by_id(addon_id: int) -> ProductAddons:
     """Получить добавку по id"""
     with get_session() as session:
@@ -531,11 +538,9 @@ def db_save_order_with_addons(chat_id: int):
         if not cart:
             return False
 
-
         final_items = session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
         if not final_items:
             return False
-
 
         for item in final_items:
             new_order = Orders(

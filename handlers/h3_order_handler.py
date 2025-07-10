@@ -34,10 +34,12 @@ async def handle_order_history(message: Message):
         return
 
     text = "🧾 Последние 5 заказов:\n\n"
-    for order in orders:
+    for item in orders:
+        order = item["order"]
+        addons = item["addons"]
+
         text += f"📦 {order.product_name} — {order.quantity} шт. — {order.final_price} руб\n"
 
-        addons = db_get_addons_by_product(order.id)
         for addon in addons:
             text += f"     ➕ {addon.name} (+{addon.price} руб)\n"
 
