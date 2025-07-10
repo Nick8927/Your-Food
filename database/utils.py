@@ -85,17 +85,31 @@ def db_get_finally_price(chat_id):
 
 
 def db_get_last_orders(chat_id: int, limit: int = 5):
-    """получить последние заказы пользователя из таблицы orders"""
+    """получить последние заказы пользователя из таблицы orders + addons"""
     with get_session() as session:
-        query = (
-            select(Orders)
+        orders = (
+            session.query(Orders)
             .join(Carts, Orders.cart_id == Carts.id)
             .join(Users, Carts.user_id == Users.id)
-            .where(Users.telegram == chat_id)
+            .filter(Users.telegram == chat_id)
             .order_by(Orders.id.desc())
             .limit(limit)
+            .all()
         )
-        return session.scalars(query).all()
+
+        result = []
+        for order in orders:
+            addons = (
+                session.query(OrderAddons)
+                .filter(OrderAddons.order_id == order.id)
+                .all()
+            )
+            result.append({
+                "order": order,
+                "addons": addons
+            })
+
+        return result
 
 
 def db_get_cart_items(chat_id: int):
