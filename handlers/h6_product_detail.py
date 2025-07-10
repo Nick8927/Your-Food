@@ -54,14 +54,6 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
             reply_markup=quantity_cart_controls()
         )
 
-        addons = db_get_addons_by_product(product.id)
-        if addons:
-            await bot.send_message(
-                chat_id=chat_id,
-                text='Желаете выбрать допы? 😊',
-                reply_markup=generate_addons_option_buttons(product.id)
-            )
-
     else:
         await ask_for_phone(chat_id, bot)
 

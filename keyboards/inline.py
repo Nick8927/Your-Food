@@ -4,12 +4,7 @@ from database.utils import db_get_all_category, db_get_finally_price, db_get_pro
 
 
 def generate_category_menu(chat_id):
-    """
-    генерация inline-клавиатуры с категориями товаров.
-
-    :param chat_id: ID пользователя для получения суммы корзины.
-    :return: InlineMarkup с кнопками категорий и корзинки.
-    """
+    """генерация inline-клавиатуры с категориями товаров"""
     categories = db_get_all_category()
     total_price = db_get_finally_price(chat_id)
 
