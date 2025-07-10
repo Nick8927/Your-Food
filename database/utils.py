@@ -4,7 +4,8 @@ from sqlalchemy.exc import IntegrityError
 
 from database.base import engine
 from database.models import (Users, Categories, Products, Carts,
-                             FinallyCarts, Orders, ProductAddons, CartAddons)
+                             FinallyCarts, Orders, ProductAddons, CartAddons,
+                             OrderAddons)
 
 
 def get_session():
@@ -502,3 +503,49 @@ def db_clear_addons_if_cart_empty(user_telegram_id: int) -> None:
         if products_in_cart == 0:
             session.query(CartAddons).filter(CartAddons.cart_id == cart.id).delete()
             session.commit()
+
+
+def db_save_order_with_addons(chat_id: int):
+    """Сохраняет финальную корзину и добавки в историю заказов"""
+    with get_session() as session:
+        cart = (
+            session.query(Carts)
+            .join(Users)
+            .filter(Users.telegram == chat_id)
+            .first()
+        )
+        if not cart:
+            return False
+
+
+        final_items = session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
+        if not final_items:
+            return False
+
+
+        for item in final_items:
+            new_order = Orders(
+                cart_id=cart.id,
+                product_name=item.product_name,
+                quantity=item.quantity,
+                final_price=item.final_price
+            )
+            session.add(new_order)
+            session.flush()
+
+            cart_addons = (
+                session.query(CartAddons)
+                .filter(CartAddons.cart_id == cart.id)
+                .all()
+            )
+
+            for addon in cart_addons:
+                order_addon = OrderAddons(
+                    order_id=new_order.id,
+                    name=addon.name,
+                    price=addon.price
+                )
+                session.add(order_addon)
+
+        session.commit()
+        return True
