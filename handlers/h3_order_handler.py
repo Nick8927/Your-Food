@@ -1,7 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
 
-from database.utils import db_get_last_orders
+from database.utils import db_get_last_orders, db_get_addons_by_product
 from handlers.h2_get_contact import show_main_menu
 from keyboards.reply import back_to_main_menu
 from keyboards.inline import generate_category_menu
@@ -34,8 +34,14 @@ async def handle_order_history(message: Message):
         return
 
     text = "🧾 Последние 5 заказов:\n\n"
-    for order in orders:
+    for item in orders:
+        order = item["order"]
+        addons = item["addons"]
+
         text += f"📦 {order.product_name} — {order.quantity} шт. — {order.final_price} руб\n"
+
+        for addon in addons:
+            text += f"     ➕ {addon.name} (+{addon.price} руб)\n"
 
     await message.answer(text)
 

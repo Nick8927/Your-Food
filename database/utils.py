@@ -85,17 +85,31 @@ def db_get_finally_price(chat_id):
 
 
 def db_get_last_orders(chat_id: int, limit: int = 5):
-    """получить последние заказы пользователя из таблицы orders"""
+    """получить последние заказы пользователя из таблицы orders + addons"""
     with get_session() as session:
-        query = (
-            select(Orders)
+        orders = (
+            session.query(Orders)
             .join(Carts, Orders.cart_id == Carts.id)
             .join(Users, Carts.user_id == Users.id)
-            .where(Users.telegram == chat_id)
+            .filter(Users.telegram == chat_id)
             .order_by(Orders.id.desc())
             .limit(limit)
+            .all()
         )
-        return session.scalars(query).all()
+
+        result = []
+        for order in orders:
+            addons = (
+                session.query(OrderAddons)
+                .filter(OrderAddons.order_id == order.id)
+                .all()
+            )
+            result.append({
+                "order": order,
+                "addons": addons
+            })
+
+        return result
 
 
 def db_get_cart_items(chat_id: int):
@@ -373,6 +387,13 @@ def db_get_addons_by_product(product_id: int):
         return session.scalars(query).all()
 
 
+def db_get_cart_addons_by_cart_id(cart_id: int):
+    """Получить добавки, выбранные пользователем для конкретного cart_id"""
+    with get_session() as session:
+        query = select(CartAddons).where(CartAddons.cart_id == cart_id)
+        return session.scalars(query).all()
+
+
 def db_get_addon_by_id(addon_id: int) -> ProductAddons:
     """Получить добавку по id"""
     with get_session() as session:
@@ -517,11 +538,9 @@ def db_save_order_with_addons(chat_id: int):
         if not cart:
             return False
 
-
         final_items = session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
         if not final_items:
             return False
-
 
         for item in final_items:
             new_order = Orders(
