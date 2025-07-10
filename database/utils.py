@@ -478,3 +478,27 @@ def db_is_addon_in_cart(user_telegram_id: int, addon_id: int) -> bool:
             .first()
         )
         return exists is not None
+
+
+def db_clear_addons_if_cart_empty(user_telegram_id: int) -> None:
+    """Удаляет все добавки, если корзина пуста"""
+    with get_session() as session:
+        cart = (
+            session.query(Carts)
+            .join(Users, Carts.user_id == Users.id)
+            .filter(Users.telegram == user_telegram_id)
+            .first()
+        )
+
+        if not cart:
+            return
+
+        products_in_cart = (
+            session.query(FinallyCarts)
+            .filter(FinallyCarts.cart_id == cart.id)
+            .count()
+        )
+
+        if products_in_cart == 0:
+            session.query(CartAddons).filter(CartAddons.cart_id == cart.id).delete()
+            session.commit()
