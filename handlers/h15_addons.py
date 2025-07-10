@@ -106,9 +106,18 @@ async def handle_remove_addon(callback: CallbackQuery, bot: Bot):
     await callback.answer()
 
 
-@router.callback_query(F.data == "no_addon")
-async def handle_no_addon(callback: CallbackQuery):
-    """отказаться от добавок"""
-    await callback.message.edit_text("Вы выбрали товар без добавок.")
-    await callback.answer()
+from database.utils import db_remove_all_addons_from_cart
+
+
+@router.callback_query(F.data == 'no_addon')
+async def remove_all_addons(callback: CallbackQuery):
+    """Удалить все добавки из корзины"""
+    chat_id = callback.from_user.id
+    cart = db_get_user_cart(chat_id)
+    if not cart:
+        await callback.answer("Корзина не найдена.")
+        return
+
+    db_remove_all_addons_from_cart(cart.id)
+    await callback.message.edit_text("Без добавок ✅")
 

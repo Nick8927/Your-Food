@@ -1,8 +1,9 @@
 from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery
 
-from database.utils import db_get_user_cart, db_upsert_final_cart_item
+from database.utils import db_get_user_cart, db_upsert_final_cart_item, db_get_product_by_name, db_get_addons_by_product
 from handlers.h5_navigation_handlers import return_to_category_menu
+from keyboards.inline import generate_addons_keyboard
 
 router = Router()
 
@@ -40,6 +41,15 @@ async def add_to_cart(callback: CallbackQuery, bot: Bot):
         total_products=cart.total_products,
         total_price=cart.total_price
     )
+
+    product = db_get_product_by_name(product_name)
+    addons = db_get_addons_by_product(product.id)
+    if addons:
+        await bot.send_message(
+            chat_id=chat_id,
+            text='Не желаете выбрать добавки? 😊',
+            reply_markup=generate_addons_keyboard(product.id)
+        )
 
     match result:
         case 'inserted':
