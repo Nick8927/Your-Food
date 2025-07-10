@@ -1,7 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
 
-from database.utils import db_get_last_orders, db_get_addons_by_product
+from database.utils import db_get_last_orders
 from handlers.h2_get_contact import show_main_menu
 from keyboards.reply import back_to_main_menu
 from keyboards.inline import generate_category_menu
