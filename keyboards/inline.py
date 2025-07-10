@@ -93,7 +93,7 @@ def get_delete_confirm_keyboard() -> InlineKeyboardMarkup:
 
 
 def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
-    """Выбор и удаление добавок к товару"""
+    """Выбор добавок к товару"""
     addons = db_get_addons_by_product(product_id)
     builder = InlineKeyboardBuilder()
 
@@ -101,10 +101,6 @@ def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
         builder.button(
             text=f"➕ {addon.name} (+{addon.price} BYN)",
             callback_data=f"addon_{addon.id}"
-        )
-        builder.button(
-            text=f"➖ Удалить {addon.name}",
-            callback_data=f"remove_addon_{addon.id}"
         )
 
     builder.button(text="✅ Без добавок", callback_data="no_addon")
