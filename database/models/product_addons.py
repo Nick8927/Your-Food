@@ -25,3 +25,14 @@ class CartAddons(Base):
 
     cart = relationship("Carts", back_populates="addons")
     addon = relationship("ProductAddons")
+
+
+class OrderAddons(Base):
+    __tablename__ = "order_addons"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"))
+    name: Mapped[str] = mapped_column(String(100))
+    price: Mapped[int]
+
+    order = relationship("Orders", back_populates="addons")

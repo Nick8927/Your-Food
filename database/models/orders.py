@@ -1,6 +1,7 @@
 from sqlalchemy import String, ForeignKey, DECIMAL
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base
+
 
 class Orders(Base):
     __tablename__ = "orders"
@@ -10,6 +11,10 @@ class Orders(Base):
     product_name: Mapped[str] = mapped_column(String(50))
     quantity: Mapped[int]
     final_price: Mapped[DECIMAL] = mapped_column(DECIMAL(5, 2))
+
+    addons: Mapped[list["OrderAddons"]] = relationship(
+        "OrderAddons", back_populates="order", cascade="all, delete-orphan"
+    )
 
     def __str__(self):
         return f"{self.product_name} x{self.quantity} — {self.final_price} руб"
