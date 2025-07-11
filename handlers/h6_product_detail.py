@@ -6,9 +6,9 @@ from database.utils import (
     db_get_user_cart,
     db_update_to_cart,
     db_get_cart_items,
-    db_get_addons_by_product
+    db_get_addons_by_product, db_get_all_category
 )
-from keyboards.inline import quantity_cart_controls, generate_addons_option_buttons
+from keyboards.inline import quantity_cart_controls, generate_addons_option_buttons, generate_category_menu
 from keyboards.reply import phone_button
 from bot_utils.message_utils import text_for_caption
 
@@ -65,3 +65,30 @@ async def ask_for_phone(chat_id, bot: Bot):
         text='Предоставьте Ваш номер телефона, чтобы сделать заказ',
         reply_markup=phone_button()
     )
+
+
+@router.callback_query(F.data == "from_detail_to_category")
+async def handle_back_to_category(callback: CallbackQuery, bot: Bot):
+    """Возврат от детального просмотра продукта к списку всех категорий"""
+    chat_id = callback.message.chat.id
+    message_id = callback.message.message_id
+
+    try:
+        await bot.delete_message(chat_id=chat_id, message_id=message_id)
+    except Exception as e:
+        print(f" Не удалось удалить сообщение: {e}")
+
+    categories = db_get_all_category()
+
+    if not categories:
+        await bot.send_message(chat_id=chat_id, text=" Категории не найдены.")
+        return
+
+    keyboard = generate_category_menu(chat_id)
+    await bot.send_message(
+        chat_id=chat_id,
+        text="Выберите категорию:",
+        reply_markup=keyboard
+    )
+
+    await callback.answer()
