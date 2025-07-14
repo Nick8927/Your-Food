@@ -1,5 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+from config import MANAGER_CHAT_ID
 from database.utils import db_get_all_category, db_get_finally_price, db_get_product, db_get_addons_by_product
 
 
@@ -64,6 +66,11 @@ def get_settings_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="🌐 Сменить язык", callback_data="change_language")
     builder.button(text="🗑 Удалить аккаунт", callback_data="delete_account")
+    if MANAGER_CHAT_ID:
+        builder.button(
+            text="📞 Связаться с менеджером",
+            url=f"tg://user?id={MANAGER_CHAT_ID}"
+        )
     builder.button(text="↩️ Назад", callback_data="back_to_menu")
     builder.adjust(1)
     return builder.as_markup()
