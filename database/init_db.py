@@ -6,6 +6,7 @@ from database.models.orders import Orders
 
 def init_db():
     with engine.connect() as conn:
+        conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS public"))
         conn.commit()
 
@@ -14,9 +15,12 @@ def init_db():
 
     categories = ("Торты", "Печенье")
     products = (
-        ("Торты", "Медовик", 45, "мед, мука, сахар, яйца, масло", "media/cakes/cake_milk"),
-        ("Торты", "Наполеон", 55, "молоко, мука, сахар, яйца, масло", "media/cakes/cake_honey"),
-        ("Торты", "Птичье молоко", 45, "желатин, мука, сахар, яйца, масло", "media/cakes/cake_napoleon"),
+        ("Торты", "Медовик", 45, "мед, мука, сахар, яйца, масло", "media/cakes/hone_cake.jpg"),
+        ("Торты", "Наполеон", 55, "молоко, мука, сахар, яйца, масло", "media/cakes/cake_napoleon.jpg"),
+        ("Торты", "Птичье молоко", 45, "желатин, мука, сахар, яйца, масло", "media/cakes/cake_milk.jpg"),
+        ("Печенье", "Шоколадное печенье", 20, "шоколад, мука, сахар, яйца, масло", "media/cookies/choco_cookie.jpg"),
+        ("Печенье", "Кокосовое печенье", 25, "кокос, мука, сахар, яйца, масло", "media/cookies/kokos_cookie.jpg"),
+        ("Печенье", "Овсяное печенье", 15, "овсянка, мука, сахар, яйца, масло", "media/cookies/ovsyanoe.jpg"),
     )
 
     with Session(engine) as session:
