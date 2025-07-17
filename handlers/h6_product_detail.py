@@ -4,11 +4,9 @@ from aiogram.types import CallbackQuery, FSInputFile
 from database.utils import (
     db_get_product_by_id,
     db_get_user_cart,
-    db_update_to_cart,
-    db_get_cart_items,
-    db_get_addons_by_product, db_get_all_category
+    db_get_cart_items, db_get_all_category, db_add_or_update_item
 )
-from keyboards.inline import quantity_cart_controls, generate_addons_option_buttons, generate_category_menu
+from keyboards.inline import quantity_cart_controls, generate_category_menu
 from keyboards.reply import phone_button
 from bot_utils.message_utils import text_for_caption
 
@@ -28,7 +26,12 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
     user_cart = db_get_user_cart(chat_id)
 
     if user_cart:
-        db_update_to_cart(price=product.price, cart_id=user_cart.id)
+        db_add_or_update_item(
+            cart_id=user_cart.id,
+            product_name=product.product_name,
+            product_price=product.price,
+            increment=+1
+        )
 
         cart_items = db_get_cart_items(chat_id)
         addons_total = 0
@@ -69,7 +72,7 @@ async def ask_for_phone(chat_id, bot: Bot):
 
 @router.callback_query(F.data == "from_detail_to_category")
 async def handle_back_to_category(callback: CallbackQuery, bot: Bot):
-    """Возврат от детального просмотра продукта к списку всех категорий"""
+    """возврат от детального просмотра продукта к списку всех категорий"""
     chat_id = callback.message.chat.id
     message_id = callback.message.message_id
 

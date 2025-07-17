@@ -11,7 +11,7 @@ class Products(Base):
     product_name: Mapped[str] = mapped_column(String(25), unique=True)
     description: Mapped[str]
     image: Mapped[str] = mapped_column(String(100))
-    price: Mapped[DECIMAL] = mapped_column(DECIMAL(4, 2))
+    price: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2))
     category_id: Mapped[int] = mapped_column(ForeignKey('categories.id'))
 
     addons: Mapped[list["ProductAddons"]] = relationship("ProductAddons", back_populates="product")
