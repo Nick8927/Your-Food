@@ -10,7 +10,7 @@ class Orders(Base):
     cart_id: Mapped[int] = mapped_column(ForeignKey("carts.id"))
     product_name: Mapped[str] = mapped_column(String(50))
     quantity: Mapped[int]
-    final_price: Mapped[DECIMAL] = mapped_column(DECIMAL(5, 2))
+    final_price: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2))
 
     addons: Mapped[list["OrderAddons"]] = relationship(
         "OrderAddons", back_populates="order", cascade="all, delete-orphan"

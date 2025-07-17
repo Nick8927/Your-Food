@@ -568,3 +568,57 @@ def db_save_order_with_addons(chat_id: int):
 
         session.commit()
         return True
+
+
+def db_add_or_update_item(cart_id: int, product_name: str, product_price: DECIMAL, increment: int = 0):
+    """ Добавляет товар в finally_carts или обновляет его количество.
+    Пересчитывает total_price и total_products в carts, включая addons."""
+    try:
+        with get_session() as session:
+            item = (
+                session.query(FinallyCarts)
+                .filter_by(cart_id=cart_id, product_name=product_name)
+                .first()
+            )
+
+            if item:
+                if increment != 0:
+                    item.quantity = max(1, item.quantity + increment)
+                item.final_price = item.quantity * product_price
+            else:
+                qty = 1 if increment <= 0 else increment
+                item = FinallyCarts(
+                    cart_id=cart_id,
+                    product_name=product_name,
+                    quantity=qty,
+                    final_price=qty * product_price
+                )
+                session.add(item)
+
+            products_sum, total_products = session.query(
+                func.coalesce(func.sum(FinallyCarts.final_price), 0),
+                func.coalesce(func.sum(FinallyCarts.quantity), 0)
+            ).filter(FinallyCarts.cart_id == cart_id).one()
+
+            addons_sum = session.query(
+                func.coalesce(func.sum(CartAddons.price), 0)
+            ).filter(CartAddons.cart_id == cart_id).scalar()
+
+            total_price = products_sum + addons_sum
+
+            session.query(Carts).filter(Carts.id == cart_id).update({
+                Carts.total_price: total_price,
+                Carts.total_products: total_products
+            })
+
+            session.commit()
+            return {
+                "status": "ok",
+                "total_price": float(total_price),
+                "total_products": int(total_products),
+                "product_quantity": item.quantity
+            }
+
+    except Exception as e:
+        print(f"[db_add_or_update_item] Ошибка: {e}")
+        return {"status": "error"}
