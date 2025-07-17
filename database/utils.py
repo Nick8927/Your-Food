@@ -188,14 +188,6 @@ def db_get_user_cart(chat_id: int) -> Carts:
         return session.scalar(query)
 
 
-def db_update_to_cart(price: DECIMAL, cart_id: int, quantity=1) -> None:
-    """обновление корзины пользователя по его id"""
-    with get_session() as session:
-        query = update(Carts).where(Carts.id == cart_id).values(total_price=price, total_products=quantity)
-        session.execute(query)
-        session.commit()
-
-
 def db_update_product_image(product_name: str, new_image_path: str):
     """обновление изображения товара"""
     with get_session() as session:
@@ -204,40 +196,6 @@ def db_update_product_image(product_name: str, new_image_path: str):
             return
         product.image = new_image_path
         session.commit()
-
-
-def db_upsert_final_cart_item(cart_id, product_name, total_price, total_products):
-    """
-    Добавляет товар в финальную корзину или обновляет его, если уже есть.
-    Возвращает статус: 'inserted', 'updated' или 'error'
-    """
-    try:
-        with get_session() as session:
-            item = (
-                session.query(FinallyCarts)
-                .filter_by(cart_id=cart_id, product_name=product_name)
-                .first()
-            )
-
-            if item:
-                item.quantity = total_products
-                item.final_price = total_price
-                session.commit()
-                return 'updated'
-
-            new_item = FinallyCarts(
-                cart_id=cart_id,
-                product_name=product_name,
-                quantity=total_products,
-                final_price=total_price
-            )
-            session.add(new_item)
-            session.commit()
-            return 'inserted'
-
-    except Exception as e:
-        print(f"[db_upsert_cart_item] Ошибка: {e}")
-        return 'error'
 
 
 def db_get_final_cart_items(chat_id: int):
