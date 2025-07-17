@@ -2,7 +2,7 @@ from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery, FSInputFile, InputMediaPhoto
 from aiogram.exceptions import TelegramBadRequest
 
-from database.utils import db_get_user_cart, db_get_product_by_name, db_update_to_cart, db_add_or_update_item, \
+from database.utils import db_get_user_cart, db_get_product_by_name, db_add_or_update_item, \
     db_get_cart_items
 from keyboards.inline import quantity_cart_controls
 from bot_utils.message_utils import text_for_caption
