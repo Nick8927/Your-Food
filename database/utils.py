@@ -339,8 +339,16 @@ def db_delete_user_by_telegram_id(chat_id: int):
 
 
 def db_get_addons_by_product(product_id: int):
-    """Получить все доступные добавки к товару"""
+    """Получить добавки для конкретного продукта"""
     with get_session() as session:
+        product = session.get(Products, product_id)
+        if not product:
+            return []
+
+        CAKE_CATEGORY_ID = 1
+        if product.category_id != CAKE_CATEGORY_ID:
+            return []
+
         query = select(ProductAddons).where(ProductAddons.product_id == product_id)
         return session.scalars(query).all()
 
@@ -360,10 +368,18 @@ def db_get_addon_by_id(addon_id: int) -> ProductAddons:
 
 
 def db_add_addon_to_cart(telegram_id: int, addon_id: int):
-    """Добавить добавку в корзину"""
+    """Добавить добавку в корзину пользователя"""
     with get_session() as session:
         addon = session.get(ProductAddons, addon_id)
         if not addon:
+            return False
+
+        product = session.get(Products, addon.product_id)
+        if not product:
+            return False
+
+        CAKE_CATEGORY_ID = 1
+        if product.category_id != CAKE_CATEGORY_ID:
             return False
 
         cart = (
