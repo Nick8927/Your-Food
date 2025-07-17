@@ -9,8 +9,8 @@ def text_for_caption(name, description, base_price, addon_price=0.0):
         f"<b>Описание:</b> {description}\n\n"
         f"<b>Цена:</b> {total_price:.2f} BYN"
     )
-    if addon_price:
-        text += f"\n(включая добавки: +{addon_price:.2f} BYN)"
+    if addon_price > 0:
+        text += f" (включая добавки: +{addon_price:.2f} BYN)"
     return text
 
 
