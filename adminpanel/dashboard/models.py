@@ -76,3 +76,19 @@ class FinallyCarts(models.Model):
 
     def __str__(self):
         return f"{self.product_name} (x{self.quantity})"
+
+
+class Orders(models.Model):
+    """класс для таблицы orders"""
+    cart = models.ForeignKey('Carts', on_delete=models.CASCADE, related_name='orders')
+    product_name = models.CharField(max_length=50)
+    quantity = models.PositiveIntegerField()
+    final_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.product_name} x{self.quantity} — {self.final_price} руб"
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+        db_table = "orders"
