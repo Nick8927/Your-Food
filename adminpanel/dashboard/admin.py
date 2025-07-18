@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+
 from .models import Users, Categories, Products, Orders
 
 
@@ -23,6 +25,17 @@ class ProductsAdmin(admin.ModelAdmin):
 
 @admin.register(Orders)
 class OrdersAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'quantity', 'final_price', 'created_at')
+    list_display = ('product_name', 'quantity', 'final_price')
 
+    def custom_dashboard(context):
+        return mark_safe(f"""
+            <div class="card">
+                <div class="card-header bg-primary text-white">Аналитика продаж</div>
+                <div class="card-body">
+                    <img src="/dashboard/sales-chart/" style="width:100%; height:auto;">
+                </div>
+            </div>
+        """)
+
+    admin.site.index_template = 'admin/custom_index.html'
 

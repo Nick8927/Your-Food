@@ -1,4 +1,4 @@
-from sqlalchemy import String, ForeignKey, DECIMAL
+from sqlalchemy import String, ForeignKey, DECIMAL, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base
 
@@ -11,6 +11,8 @@ class Orders(Base):
     product_name: Mapped[str] = mapped_column(String(50))
     quantity: Mapped[int]
     final_price: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2))
+
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     addons: Mapped[list["OrderAddons"]] = relationship(
         "OrderAddons", back_populates="order", cascade="all, delete-orphan"
