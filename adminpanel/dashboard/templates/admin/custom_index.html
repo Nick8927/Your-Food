@@ -1,0 +1,5 @@
+{% extends "admin/index.html" %}
+{% block content %}
+    {{ block.super }}
+    {{ custom_dashboard|safe }}
+{% endblock %}
