@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 
 
 class Users(models.Model):
@@ -83,6 +84,7 @@ class Orders(models.Model):
     product_name = models.CharField(max_length=50)
     quantity = models.PositiveIntegerField()
     final_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(default=now)
 
     class Meta:
         db_table = 'orders'
