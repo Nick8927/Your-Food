@@ -3,6 +3,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.filters import CommandStart
 from aiogram.filters import Text
 
+from action_logger import log_user_registration
 from database.utils import db_register_user
 from handlers.h2_get_contact import show_main_menu
 from keyboards.reply import phone_button, start_keyboard
@@ -35,9 +36,14 @@ async def handle_start(message: Message):
 
 
 async def register_user(message: Message):
+    """регистрация пользователя, показ гл.меню, запись логов о регистрации"""
     chat_id = message.chat.id
     full_name = message.from_user.full_name
+    log_user_registration(username=full_name)
+
+
     if db_register_user(full_name, chat_id):
+
         await message.answer(text=f'Вы в мире вкуснях 🍰')
         await show_main_menu(message)
     else:
