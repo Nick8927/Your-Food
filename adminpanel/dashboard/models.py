@@ -12,6 +12,7 @@ class Users(models.Model):
         managed = False
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+        ordering = ["id"]
 
     def __str__(self):
         return self.name
@@ -25,6 +26,8 @@ class Categories(models.Model):
         managed = False
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+        ordering = ["id"]
+
 
     def __str__(self):
         return self.category_name
@@ -42,6 +45,8 @@ class Products(models.Model):
         managed = False
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
+        ordering = ["id"]
+
 
     def __str__(self):
         return self.product_name
@@ -58,6 +63,7 @@ class Carts(models.Model):
         managed = False
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
+
 
     def __str__(self):
         return f"Cart #{self.id} (User: {self.user.name})"
