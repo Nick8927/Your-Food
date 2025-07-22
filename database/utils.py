@@ -501,7 +501,7 @@ def db_clear_addons_if_cart_empty(user_telegram_id: int) -> None:
 
 
 def db_save_order_with_addons(chat_id: int):
-    """Сохраняет финальную корзину и добавки в историю заказов"""
+    """ Сохраняет финальную корзину и добавки в историю заказов."""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -510,11 +510,21 @@ def db_save_order_with_addons(chat_id: int):
             .first()
         )
         if not cart:
-            return False
+            return [], [], 0.0
 
         final_items = session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
         if not final_items:
-            return False
+            return [], [], 0.0
+
+        cart_addons = (
+            session.query(CartAddons)
+            .filter(CartAddons.cart_id == cart.id)
+            .all()
+        )
+
+        order_ids = []
+        total_price = 0.0
+        orders_data = []
 
         for item in final_items:
             new_order = Orders(
@@ -526,12 +536,10 @@ def db_save_order_with_addons(chat_id: int):
             session.add(new_order)
             session.flush()
 
-            cart_addons = (
-                session.query(CartAddons)
-                .filter(CartAddons.cart_id == cart.id)
-                .all()
-            )
+            order_ids.append(new_order.id)
+            total_price += float(item.final_price)
 
+            item_addons = []
             for addon in cart_addons:
                 order_addon = OrderAddons(
                     order_id=new_order.id,
@@ -539,9 +547,18 @@ def db_save_order_with_addons(chat_id: int):
                     price=addon.price
                 )
                 session.add(order_addon)
+                item_addons.append({"name": addon.name, "price": float(addon.price)})
+                total_price += float(addon.price)
+
+            orders_data.append({
+                "name": item.product_name,
+                "quantity": item.quantity,
+                "price": float(item.final_price),
+                "addons": item_addons
+            })
 
         session.commit()
-        return True
+        return orders_data, order_ids, total_price
 
 
 def db_add_or_update_item(cart_id: int, product_name: str, product_price: DECIMAL, increment: int = 0):
