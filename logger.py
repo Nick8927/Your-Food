@@ -11,3 +11,5 @@ logger.add(sys.stdout, colorize=True,
 
 logger.add("logs/actions.log", rotation="10 MB", compression="zip", level="INFO",
            format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
+
+# logger.info("Logger initialized successfully")
