@@ -28,3 +28,6 @@ def log_user_order(username: str, user_id: int, orders_data: list, total_price: 
     logger.info(log_text)
 
 
+def log_user_deletion(username: str, user_id: int):
+    """лог удаления аккаунта юзера"""
+    logger.info(f"[USER_ACTION] Пользователь {username} (ID: {user_id}) удалил аккаунт.")

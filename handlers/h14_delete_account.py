@@ -1,6 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.types import CallbackQuery
 
+from action_logger import log_user_deletion
 from config import MANAGER_CHAT_ID
 from database.utils import db_delete_user_by_telegram_id
 from keyboards.inline import get_settings_keyboard, get_delete_confirm_keyboard
@@ -26,6 +27,8 @@ async def handle_confirm_delete(callback: CallbackQuery, bot: Bot):
     success = db_delete_user_by_telegram_id(telegram_id)
 
     if success:
+        log_user_deletion(username=full_name, user_id=telegram_id)
+
         try:
             await callback.message.delete()
         except Exception:
