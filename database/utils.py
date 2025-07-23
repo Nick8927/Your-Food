@@ -113,24 +113,36 @@ def db_get_last_orders(chat_id: int, limit: int = 5):
 
 
 def db_get_cart_items(chat_id: int):
-    """получение всех товаров в корзине"""
+    """возвращает товары с добавками для корзины пользователя"""
     with get_session() as session:
-        query = (
-            select(
-                FinallyCarts.id,
-                FinallyCarts.product_name,
-                FinallyCarts.final_price,
-                FinallyCarts.quantity,
-                FinallyCarts.cart_id,
-                func.coalesce(func.sum(CartAddons.price), 0).label("addons_total")
-            )
+        items = (
+            session.query(FinallyCarts)
             .join(Carts, FinallyCarts.cart_id == Carts.id)
             .join(Users, Users.id == Carts.user_id)
-            .outerjoin(CartAddons, CartAddons.cart_id == Carts.id)
-            .where(Users.telegram == chat_id)
-            .group_by(FinallyCarts.id)
+            .filter(Users.telegram == chat_id)
+            .all()
         )
-        return session.execute(query).mappings().all()
+
+        result = []
+        for item in items:
+            addons = (
+                session.query(CartAddons.name, CartAddons.price)
+                .filter(
+                    CartAddons.cart_id == item.cart_id,
+                    CartAddons.product_id == item.product_id
+                )
+                .all()
+            )
+
+            result.append({
+                "product_id": item.product_id,
+                "product_name": item.product_name,
+                "quantity": item.quantity,
+                "final_price": float(item.final_price),
+                "addons": [{"name": a[0], "price": float(a[1])} for a in addons]
+            })
+
+        return result
 
 
 def db_get_product(category_id):
@@ -566,51 +578,53 @@ def db_save_order_with_addons(chat_id: int):
         return orders_data, order_ids, total_price
 
 
-def db_add_or_update_item(cart_id: int, product_name: str, product_price: DECIMAL, increment: int = 0):
-    """добавляет товар в finally_carts или обновляет его количество,
-    пересчитывает total_price и total_products в carts, включая addons"""
+def db_add_or_update_item(cart_id: int, product_id: int, product_name: str, product_price: DECIMAL, increment: int = 0):
+    """добавляет товар или обновляет его количество с учетом добавок."""
     try:
         with get_session() as session:
             item = (
                 session.query(FinallyCarts)
-                .filter_by(cart_id=cart_id, product_name=product_name)
+                .filter_by(cart_id=cart_id, product_id=product_id)
                 .first()
             )
 
             if item:
                 if increment != 0:
                     item.quantity = max(1, item.quantity + increment)
-                item.final_price = item.quantity * product_price
             else:
                 qty = 1 if increment <= 0 else increment
                 item = FinallyCarts(
                     cart_id=cart_id,
+                    product_id=product_id,
                     product_name=product_name,
                     quantity=qty,
-                    final_price=qty * product_price
+                    final_price=0
                 )
                 session.add(item)
+
+            product_addons_sum = session.query(
+                func.coalesce(func.sum(CartAddons.price), 0)
+            ).filter(
+                CartAddons.cart_id == cart_id,
+                CartAddons.product_id == product_id
+            ).scalar()
+
+            item.final_price = (item.quantity * product_price) + product_addons_sum
 
             products_sum, total_products = session.query(
                 func.coalesce(func.sum(FinallyCarts.final_price), 0),
                 func.coalesce(func.sum(FinallyCarts.quantity), 0)
             ).filter(FinallyCarts.cart_id == cart_id).one()
 
-            addons_sum = session.query(
-                func.coalesce(func.sum(CartAddons.price), 0)
-            ).filter(CartAddons.cart_id == cart_id).scalar()
-
-            total_price = products_sum + addons_sum
-
             session.query(Carts).filter(Carts.id == cart_id).update({
-                Carts.total_price: total_price,
+                Carts.total_price: products_sum,
                 Carts.total_products: total_products
             })
 
             session.commit()
             return {
                 "status": "ok",
-                "total_price": float(total_price),
+                "total_price": float(products_sum),
                 "total_products": int(total_products),
                 "product_quantity": item.quantity
             }

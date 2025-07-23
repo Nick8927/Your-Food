@@ -95,8 +95,8 @@ def get_delete_confirm_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
-    """выбор добавок к товару"""
+def generate_addons_keyboard(product_id: int):
+    """кнопки для добавок"""
     addons = db_get_addons_by_product(product_id)
     builder = InlineKeyboardBuilder()
 

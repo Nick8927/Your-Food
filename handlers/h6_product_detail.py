@@ -28,6 +28,7 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
     if user_cart:
         db_add_or_update_item(
             cart_id=user_cart.id,
+            product_id=product.id,
             product_name=product.product_name,
             product_price=product.price,
             increment=+1
@@ -36,8 +37,8 @@ async def show_product_detail(callback: CallbackQuery, bot: Bot):
         cart_items = db_get_cart_items(chat_id)
         addons_total = 0
         for item in cart_items:
-            if item["product_name"] == product.product_name:
-                addons_total = item["addons_total"]
+            if item["product_id"] == product.id:
+                addons_total = sum(a["price"] for a in item["addons"])
                 break
 
         caption = text_for_caption(
