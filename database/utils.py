@@ -265,7 +265,7 @@ def db_decrease_product_quantity(finally_cart_id: int):
 
 
 def db_clear_final_cart(chat_id: int):
-    """Удаление всех товаров из финальной корзины пользователя"""
+    """удаление всех товаров из финальной корзины пользователя"""
     cart = db_get_user_cart(chat_id)
     if not cart:
         return
@@ -277,7 +277,7 @@ def db_clear_final_cart(chat_id: int):
 
 
 def db_save_order_history(chat_id: int):
-    """Сохраняет текущую финальную корзину в таблицу заказов"""
+    """сохраняет текущую финальную корзину в таблицу заказов"""
     cart = db_get_user_cart(chat_id)
     if not cart:
         return
@@ -299,14 +299,14 @@ def db_save_order_history(chat_id: int):
 
 
 def db_get_user_phone(chat_id: int):
-    """Получение номера телефона пользователя по Telegram ID"""
+    """получение номера телефона пользователя по Telegram ID"""
     with get_session() as session:
         query = select(Users.phone).where(Users.telegram == chat_id)
         return session.execute(query).fetchone()[0]
 
 
 def db_update_user_language(telegram_id: int, language: str):
-    """Обновляет язык пользователя в БД """
+    """обновляет язык пользователя в БД """
     with get_session() as session:
         session.execute(
             update(Users).where(Users.telegram == telegram_id).values(language=language)
@@ -315,7 +315,7 @@ def db_update_user_language(telegram_id: int, language: str):
 
 
 def db_delete_user_by_telegram_id(chat_id: int):
-    """Удаление пользователя по Telegram ID"""
+    """удаление пользователя по Telegram ID"""
     try:
         with get_session() as session:
             user = session.scalar(select(Users).where(Users.telegram == chat_id))
@@ -339,7 +339,7 @@ def db_delete_user_by_telegram_id(chat_id: int):
 
 
 def db_get_addons_by_product(product_id: int):
-    """Получить добавки для конкретного продукта"""
+    """получить добавки для конкретного продукта"""
     with get_session() as session:
         product = session.get(Products, product_id)
         if not product:
@@ -354,32 +354,28 @@ def db_get_addons_by_product(product_id: int):
 
 
 def db_get_cart_addons_by_cart_id(cart_id: int):
-    """Получить добавки, выбранные пользователем для конкретного cart_id"""
+    """получить добавки, выбранные пользователем для конкретного cart_id"""
     with get_session() as session:
         query = select(CartAddons).where(CartAddons.cart_id == cart_id)
         return session.scalars(query).all()
 
 
 def db_get_addon_by_id(addon_id: int) -> ProductAddons:
-    """Получить добавку по id"""
+    """получить добавку по id"""
     with get_session() as session:
         query = select(ProductAddons).where(ProductAddons.id == addon_id)
         return session.scalar(query)
 
 
-def db_add_addon_to_cart(telegram_id: int, addon_id: int):
-    """Добавить добавку в корзину пользователя"""
+def db_add_addon_to_cart(telegram_id: int, addon_id: int, product_id: int):
+    """добавляет добавку к конкретному товару в корзине"""
     with get_session() as session:
         addon = session.get(ProductAddons, addon_id)
-        if not addon:
+        if not addon or addon.product_id != product_id:
             return False
 
-        product = session.get(Products, addon.product_id)
+        product = session.get(Products, product_id)
         if not product:
-            return False
-
-        CAKE_CATEGORY_ID = 1
-        if product.category_id != CAKE_CATEGORY_ID:
             return False
 
         cart = (
@@ -391,8 +387,17 @@ def db_add_addon_to_cart(telegram_id: int, addon_id: int):
         if not cart:
             return False
 
+        existing = (
+            session.query(CartAddons)
+            .filter(CartAddons.cart_id == cart.id, CartAddons.product_id == product_id, CartAddons.addon_id == addon_id)
+            .first()
+        )
+        if existing:
+            return False
+
         cart_addon = CartAddons(
             cart_id=cart.id,
+            product_id=product_id,
             addon_id=addon.id,
             name=addon.name,
             price=addon.price
@@ -403,7 +408,7 @@ def db_add_addon_to_cart(telegram_id: int, addon_id: int):
 
 
 def db_get_addons_total_price(cart_id: int):
-    """Получить сумму всех добавок в корзине"""
+    """получить сумму всех добавок в корзине"""
     with get_session() as session:
         result = (
             session.query(func.coalesce(func.sum(CartAddons.price), 0))
@@ -414,7 +419,7 @@ def db_get_addons_total_price(cart_id: int):
 
 
 def db_remove_addon_from_cart(telegram_id: int, addon_id: int):
-    """Удалить добавку из корзины пользователя"""
+    """удалить добавку из корзины пользователя"""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -439,7 +444,7 @@ def db_remove_addon_from_cart(telegram_id: int, addon_id: int):
 
 
 def db_remove_all_addons_from_cart(user_telegram_id: int) -> bool:
-    """Удалить все добавки из корзины пользователя по Telegram ID"""
+    """удалить все добавки из корзины пользователя по Telegram ID"""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -457,7 +462,7 @@ def db_remove_all_addons_from_cart(user_telegram_id: int) -> bool:
 
 
 def db_is_addon_in_cart(user_telegram_id: int, addon_id: int) -> bool:
-    """Проверяет, есть ли добавка в корзине пользователя"""
+    """проверяет, есть ли добавка в корзине пользователя"""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -477,7 +482,7 @@ def db_is_addon_in_cart(user_telegram_id: int, addon_id: int) -> bool:
 
 
 def db_clear_addons_if_cart_empty(user_telegram_id: int) -> None:
-    """Удаляет все добавки, если корзина пуста"""
+    """удаляет все добавки, если корзина пуста"""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -501,7 +506,7 @@ def db_clear_addons_if_cart_empty(user_telegram_id: int) -> None:
 
 
 def db_save_order_with_addons(chat_id: int):
-    """ Сохраняет финальную корзину и добавки в историю заказов."""
+    """сохраняет финальную корзину и добавки в историю заказов"""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -562,8 +567,8 @@ def db_save_order_with_addons(chat_id: int):
 
 
 def db_add_or_update_item(cart_id: int, product_name: str, product_price: DECIMAL, increment: int = 0):
-    """ Добавляет товар в finally_carts или обновляет его количество.
-    Пересчитывает total_price и total_products в carts, включая addons."""
+    """добавляет товар в finally_carts или обновляет его количество,
+    пересчитывает total_price и total_products в carts, включая addons"""
     try:
         with get_session() as session:
             item = (
@@ -613,3 +618,30 @@ def db_add_or_update_item(cart_id: int, product_name: str, product_price: DECIMA
     except Exception as e:
         print(f"[db_add_or_update_item] Ошибка: {e}")
         return {"status": "error"}
+
+
+def db_get_cart_addons(cart_id: int, product_id: int):
+    """получить добавки для конкретного товара в корзине"""
+    with get_session() as session:
+        return (
+            session.query(CartAddons)
+            .filter(CartAddons.cart_id == cart_id, CartAddons.product_id == product_id)
+            .all()
+        )
+
+
+def db_get_finally_carts(cart_id: int):
+    """получить все товары в фин.корзине"""
+    with get_session() as session:
+        return session.query(FinallyCarts).filter_by(cart_id=cart_id).all()
+
+
+def db_remove_addons_for_product(cart_id: int, product_id: int) -> bool:
+    """удаляет все добавки у конкретного товара в корзине"""
+    with get_session() as session:
+        deleted = session.query(CartAddons).filter(
+            CartAddons.cart_id == cart_id,
+            CartAddons.product_id == product_id
+        ).delete()
+        session.commit()
+        return deleted > 0
