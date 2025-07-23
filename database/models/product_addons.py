@@ -19,6 +19,7 @@ class CartAddons(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     cart_id: Mapped[int] = mapped_column(ForeignKey("carts.id", ondelete="CASCADE"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"))
     addon_id: Mapped[int] = mapped_column(ForeignKey("product_addons.id", ondelete="CASCADE"))
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[int] = mapped_column(default=0)
