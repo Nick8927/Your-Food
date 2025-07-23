@@ -87,7 +87,7 @@ def get_language_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_delete_confirm_keyboard() -> InlineKeyboardMarkup:
-    """Подтверждение удаления аккаунта"""
+    """подтверждение удаления аккаунта"""
     builder = InlineKeyboardBuilder()
     builder.button(text="✅ Да, удалить", callback_data="confirm_delete")
     builder.button(text="❌ Отмена", callback_data="settings_menu")
@@ -96,7 +96,7 @@ def get_delete_confirm_keyboard() -> InlineKeyboardMarkup:
 
 
 def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
-    """Выбор добавок к товару"""
+    """выбор добавок к товару"""
     addons = db_get_addons_by_product(product_id)
     builder = InlineKeyboardBuilder()
 
@@ -106,22 +106,13 @@ def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
             callback_data=f"addon_{addon.id}"
         )
 
-    builder.button(text="✅ Без добавок", callback_data="no_addon")
-    builder.adjust(1)
-    return builder.as_markup()
-
-
-def generate_addons_option_buttons(product_id: int) -> InlineKeyboardMarkup:
-    """Кнопка выбора допов"""
-    builder = InlineKeyboardBuilder()
-    builder.button(text="➕ Выбрать добавку", callback_data=f"product_{product_id}")
-    builder.button(text="⬅ Назад", callback_data="return_to_category")
+    builder.button(text="✅ Без добавок", callback_data=f"no_addon_{product_id}")
     builder.adjust(1)
     return builder.as_markup()
 
 
 def generate_back_to_menu_keyboard() -> InlineKeyboardMarkup:
-    """Кнопка для возврата в категорию после выбора добавки"""
+    """кнопка для возврата в категорию после выбора добавки"""
     builder = InlineKeyboardBuilder()
     builder.button(text="⬅ Назад", callback_data="return_to_category")
     return builder.as_markup()
