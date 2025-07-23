@@ -103,7 +103,7 @@ def generate_addons_keyboard(product_id: int) -> InlineKeyboardMarkup:
     for addon in addons:
         builder.button(
             text=f"➕ {addon.name} (+{addon.price} BYN)",
-            callback_data=f"addon_{addon.id}"
+            callback_data=f"addon_{addon.id}_{product_id}"
         )
 
     builder.button(text="✅ Без добавок", callback_data=f"no_addon_{product_id}")
