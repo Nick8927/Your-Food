@@ -1,6 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 
+from scheduler import start_scheduler
 from config import TOKEN
 from handlers import (
     h1_on_startup, h2_get_contact, h3_order_handler,h4_categories_handler,
@@ -30,6 +31,7 @@ dp.include_router(h15_addons.router)
 
 
 async def main():
+    start_scheduler()
     await dp.start_polling(bot)
 
 
