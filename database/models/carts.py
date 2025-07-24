@@ -24,6 +24,7 @@ class Carts(Base):
 class FinallyCarts(Base):
     __tablename__ = "finally_carts"
     id: Mapped[int] = mapped_column(primary_key=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     product_name: Mapped[str] = mapped_column(String(50))
     final_price: Mapped[DECIMAL] = mapped_column(DECIMAL(10, 2))
     quantity: Mapped[int]
