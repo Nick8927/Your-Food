@@ -48,5 +48,5 @@ async def handle_confirm_order(callback: CallbackQuery, bot: Bot):
         total_price=total_price
     )
 
-    await callback.message.edit_text("✅ Ваш заказ отправлен менеджеру. Мы свяжемся с вами.")
+    await callback.message.edit_text("✅ Ваш заказ отправлен менеджеру. Мы свяжемся с вами.\nВаш заказ доступен в истории")
     await callback.answer("Заказ оформлен!")
