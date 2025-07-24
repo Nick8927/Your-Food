@@ -27,7 +27,12 @@ async def add_to_cart(callback: CallbackQuery, bot: Bot):
         return
 
     product = db_get_product_by_name(product_name)
-    result = db_add_or_update_item(cart_id=cart.id, product_name=product_name, product_price=product.price, increment=0)
+    result = db_add_or_update_item(
+        cart_id=cart.id,
+        product_id=product.id,
+        product_name=product_name,
+        product_price=product.price,
+        increment=0)
 
     try:
         await bot.delete_message(chat_id=chat_id, message_id=message.message_id + 1)

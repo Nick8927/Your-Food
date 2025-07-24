@@ -23,10 +23,7 @@ async def handle_make_order(message: Message, bot):
 
 @router.message(F.text == "📒 История")
 async def handle_order_history(message: Message):
-    """
-    Обработчик кнопки "История".
-    Отправляет пользователю последние 5 заказов.
-    """
+    """Показывает последние 5 заказов с учетом добавок"""
     chat_id = message.chat.id
     orders = db_get_last_orders(chat_id)
     if not orders:
@@ -38,10 +35,12 @@ async def handle_order_history(message: Message):
         order = item["order"]
         addons = item["addons"]
 
-        text += f"📦 {order.product_name} — {order.quantity} шт. — {order.final_price} руб\n"
+        line_price = float(order.final_price)
+        text += f"📦 {order.product_name} — {order.quantity} шт. — {line_price:.2f} BYN\n"
 
-        for addon in addons:
-            text += f"     ➕ {addon.name} (+{addon.price} руб)\n"
+        if addons:
+            addons_text = ", ".join([f"{a.name} (+{float(a.price):.2f} BYN)" for a in addons])
+            text += f"     ➕ {addons_text}\n"
 
     await message.answer(text)
 
