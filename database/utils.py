@@ -518,7 +518,7 @@ def db_clear_addons_if_cart_empty(user_telegram_id: int) -> None:
 
 
 def db_save_order_with_addons(chat_id: int):
-    """сохраняет финальную корзину и добавки в историю заказов"""
+    """cохраняет финальную корзину и добавки в историю заказов с корректной суммой"""
     with get_session() as session:
         cart = (
             session.query(Carts)
@@ -533,45 +533,49 @@ def db_save_order_with_addons(chat_id: int):
         if not final_items:
             return [], [], 0.0
 
-        cart_addons = (
-            session.query(CartAddons)
-            .filter(CartAddons.cart_id == cart.id)
-            .all()
-        )
-
-        order_ids = []
         total_price = 0.0
         orders_data = []
+        order_ids = []
 
         for item in final_items:
+            item_addons = (
+                session.query(CartAddons)
+                .filter(
+                    CartAddons.cart_id == cart.id,
+                    CartAddons.product_id == item.product_id
+                )
+                .all()
+            )
+
+            addons_total = sum(float(addon.price) for addon in item_addons)
+            item_total_price = float(item.final_price) + addons_total
+            total_price += item_total_price
+
             new_order = Orders(
                 cart_id=cart.id,
                 product_name=item.product_name,
                 quantity=item.quantity,
-                final_price=item.final_price
+                final_price=item_total_price
             )
             session.add(new_order)
             session.flush()
-
             order_ids.append(new_order.id)
-            total_price += float(item.final_price)
 
-            item_addons = []
-            for addon in cart_addons:
+            addons_list = []
+            for addon in item_addons:
                 order_addon = OrderAddons(
                     order_id=new_order.id,
                     name=addon.name,
                     price=addon.price
                 )
                 session.add(order_addon)
-                item_addons.append({"name": addon.name, "price": float(addon.price)})
-                total_price += float(addon.price)
+                addons_list.append({"name": addon.name, "price": float(addon.price)})
 
             orders_data.append({
                 "name": item.product_name,
                 "quantity": item.quantity,
-                "price": float(item.final_price),
-                "addons": item_addons
+                "price": item_total_price,
+                "addons": addons_list
             })
 
         session.commit()
