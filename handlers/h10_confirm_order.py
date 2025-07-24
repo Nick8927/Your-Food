@@ -1,6 +1,7 @@
 from aiogram import Router, Bot, F
 from aiogram.types import CallbackQuery
 
+from scheduler import schedule_reminder
 from action_logger import log_user_order
 from bot_utils.message_utils import counting_products_from_cart
 from config import MANAGER_CHAT_ID
@@ -38,6 +39,9 @@ async def handle_confirm_order(callback: CallbackQuery, bot: Bot):
 
     orders_data, order_ids, total_price = db_save_order_with_addons(user.id)
 
+    if order_ids:
+        schedule_reminder(order_ids[0])
+
     db_clear_final_cart(callback.from_user.id)
     db_remove_all_addons_from_cart(callback.from_user.id)
 
@@ -48,5 +52,5 @@ async def handle_confirm_order(callback: CallbackQuery, bot: Bot):
         total_price=total_price
     )
 
-    await callback.message.edit_text("✅ Ваш заказ отправлен менеджеру. Мы свяжемся с вами.")
+    await callback.message.edit_text("✅ Ваш заказ отправлен менеджеру. Мы свяжемся с вами.\nЗаказ доступен в истории")
     await callback.answer("Заказ оформлен!")

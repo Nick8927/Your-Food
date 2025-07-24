@@ -13,7 +13,6 @@ async def handle_cart(message: Message):
     await show_cart(chat_id=message.chat.id, send_fn=message.answer)
 
 
-# callback (inline-кнопка)
 @router.callback_query(F.data == 'Корзина заказа')
 async def open_cart(callback: CallbackQuery):
     """Выводит содержимое корзины в ответ на нажатие inline-кнопки"""
