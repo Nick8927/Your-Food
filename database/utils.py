@@ -663,3 +663,30 @@ def db_remove_addons_for_product(cart_id: int, product_id: int) -> bool:
         ).delete()
         session.commit()
         return deleted > 0
+
+
+def db_get_order_info(order_id: int):
+    """возвращает данные по заказу для напоминания менеджеру"""
+    with get_session() as session:
+        order = session.query(Orders).filter_by(id=order_id).first()
+        if not order:
+            return {"username": "Неизвестно", "phone": "-", "total_price": 0.0}
+
+        user = (
+            session.query(Users)
+            .join(Carts, Users.id == Carts.user_id)
+            .filter(Carts.id == order.cart_id)
+            .first()
+        )
+
+        addons_total = (
+            session.query(func.sum(OrderAddons.price))
+            .filter(OrderAddons.order_id == order_id)
+            .scalar() or 0.0
+        )
+
+        return {
+            "username": user.name if user else "Неизвестно",
+            "phone": user.phone if user else "-",
+            "total_price": float(order.final_price) + float(addons_total)
+        }
