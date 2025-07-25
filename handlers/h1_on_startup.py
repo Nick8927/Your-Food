@@ -1,7 +1,6 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message, FSInputFile
 from aiogram.filters import CommandStart
-from aiogram.filters import Text
 
 from action_logger import log_user_registration
 from database.utils import db_register_user
@@ -24,7 +23,7 @@ async def command_start(message: Message):
     )
 
 
-@router.message(Text("🚀 Начать"))
+@router.message(F.text=="🚀 Начать")
 async def handle_start_button(message: Message):
     """обработка нажатия кнопки 'Начать"""
     await handle_start(message)
