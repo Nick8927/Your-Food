@@ -1,6 +1,7 @@
 # ▶ Virtual environments
 venv/
 .env
+.env.docker
 .idea
 
 
