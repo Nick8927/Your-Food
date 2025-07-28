@@ -16,4 +16,6 @@ COPY . /app
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
+RUN python database/init_db.py
+
 CMD ["python", "main.py"]
