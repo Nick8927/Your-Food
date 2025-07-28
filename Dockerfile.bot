@@ -11,6 +11,7 @@ COPY req.txt ./
 RUN pip install --no-cache-dir -r req.txt
 
 COPY . /app
+COPY media/ /app/media/
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
