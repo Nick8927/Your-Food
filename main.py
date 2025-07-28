@@ -1,6 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 
+from database.init_db import init_db
 from scheduler import start_scheduler
 from config import TOKEN
 from handlers import (
@@ -31,6 +32,7 @@ dp.include_router(h15_addons.router)
 
 
 async def main():
+    init_db()
     start_scheduler()
     await dp.start_polling(bot)
 
