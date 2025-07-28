@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY req.txt /app/req.txt
-
+COPY req.txt ./
 RUN pip install --no-cache-dir -r req.txt
 
 COPY . /app
