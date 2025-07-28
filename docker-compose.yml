@@ -1,10 +1,12 @@
-version: '3.9'
+version: "3.8"
 
 services:
   db:
     image: postgres:15
     container_name: yourfood-db
     restart: always
+    env_file:
+      - .env.docker
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -22,10 +24,11 @@ services:
   bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.bot
     container_name: yourfood-bot
     restart: always
-    env_file: .env.docker
+    env_file:
+      - .env.docker
     depends_on:
       db:
         condition: service_healthy
@@ -33,15 +36,16 @@ services:
   admin:
     build:
       context: ./adminpanel
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.admin
     container_name: yourfood-admin
     restart: always
-    env_file: .env.docker
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "8000:8000"
 
 volumes:
   postgres_data:
