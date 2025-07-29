@@ -39,7 +39,7 @@
 
 ## ⚙️ Установка и запуск
 
-###  Клонирование проекта:
+Клонирование проекта:
 ```bash
 git clone https://github.com/Nick8927/Your-Food.git
 cd Your-Food
