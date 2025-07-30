@@ -41,7 +41,9 @@
 ```bash
 git clone https://github.com/Nick8927/Your-Food.git
 cd Your-Food
-🛠 Шаги для работы
+```
+
+## 🛠 Шаги для работы
 Создайте файл .env.docker с токеном ТГ-бота и настройками PostgreSQL:
 
 BOT_TOKEN=your_telegram_bot_token
@@ -49,9 +51,11 @@ DB_USER=youruser
 DB_PASSWORD=yourpassword
 DB_NAME=yourdb
 
-🐳 Запуск через Docker
-
+## 🐳 Запуск через Docker
+```bash
 docker-compose up --build
+```
+
 Бот автоматически подключится к базе данных, и будет готов к использованию.
 Админ-панель будет доступна на: http://localhost:8000/admin
 
