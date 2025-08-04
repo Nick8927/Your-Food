@@ -5,7 +5,7 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from aiogram import Bot
 import logging
 from dotenv import load_dotenv
-from database.utils import db_get_order_info
+from database.utils import  db_get_last_order_info
 
 load_dotenv()
 
@@ -34,7 +34,7 @@ scheduler = AsyncIOScheduler(jobstores=jobstores)
 async def remind_manager(order_id: int, manager_chat_id: int):
     bot = Bot(token=BOT_TOKEN)
 
-    order_info = db_get_order_info(order_id)
+    order_info = db_get_last_order_info(order_id)
     if not order_info:
         logger.error(f"Заказ с ID {order_id} не найден в БД для напоминания.")
         await bot.session.close()

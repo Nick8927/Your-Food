@@ -665,8 +665,8 @@ def db_remove_addons_for_product(cart_id: int, product_id: int) -> bool:
         return deleted > 0
 
 
-def db_get_order_info(order_id: int):
-    """возвращает данные по заказу для напоминания менеджеру"""
+def db_get_last_order_info(order_id: int):
+    """возвращает данные по конкретному заказу с учетом добавок"""
     with get_session() as session:
         order = session.query(Orders).filter_by(id=order_id).first()
         if not order:
@@ -681,7 +681,7 @@ def db_get_order_info(order_id: int):
 
         addons_total = (
             session.query(func.sum(OrderAddons.price))
-            .filter(OrderAddons.order_id == order_id)
+            .filter(OrderAddons.order_id == order.id)
             .scalar() or 0.0
         )
 
