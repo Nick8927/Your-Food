@@ -32,7 +32,7 @@ dp.include_router(h15_addons.router)
 
 
 async def main():
-    init_db()
+    # init_db()
     start_scheduler()
     await dp.start_polling(bot)
 

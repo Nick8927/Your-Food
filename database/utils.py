@@ -666,27 +666,46 @@ def db_remove_addons_for_product(cart_id: int, product_id: int) -> bool:
 
 
 def db_get_last_order_info(order_id: int):
-    """возвращает данные по конкретному заказу с учетом добавок"""
+    """возвращает данные по последнему заказу (все позиции с одной датой)"""
     with get_session() as session:
-        order = session.query(Orders).filter_by(id=order_id).first()
-        if not order:
-            return {"username": "Неизвестно", "phone": "-", "total_price": 0.0}
+        first_order = session.query(Orders).filter_by(id=order_id).first()
+        if not first_order:
+            return None
+
+        cart_id = first_order.cart_id
+
+        last_order_time = (
+            session.query(func.max(Orders.created_at))
+            .filter(Orders.cart_id == cart_id)
+            .scalar()
+        )
+
+        order_items = (
+            session.query(Orders)
+            .filter(
+                Orders.cart_id == cart_id,
+                Orders.created_at == last_order_time
+            )
+            .all()
+        )
+
+        if not order_items:
+            return None
 
         user = (
             session.query(Users)
             .join(Carts, Users.id == Carts.user_id)
-            .filter(Carts.id == order.cart_id)
+            .filter(Carts.id == cart_id)
             .first()
         )
 
-        addons_total = (
-            session.query(func.sum(OrderAddons.price))
-            .filter(OrderAddons.order_id == order.id)
-            .scalar() or 0.0
-        )
+        total_price = sum(float(item.final_price) for item in order_items)
 
         return {
+            "cart_id": cart_id,
             "username": user.name if user else "Неизвестно",
             "phone": user.phone if user else "-",
-            "total_price": float(order.final_price) + float(addons_total)
+            "total_price": total_price
         }
+
+

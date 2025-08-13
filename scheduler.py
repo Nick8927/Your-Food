@@ -32,6 +32,7 @@ scheduler = AsyncIOScheduler(jobstores=jobstores)
 
 
 async def remind_manager(order_id: int, manager_chat_id: int):
+    """Отправляем напоминание менеджеру"""
     bot = Bot(token=BOT_TOKEN)
 
     order_info = db_get_last_order_info(order_id)
@@ -41,7 +42,8 @@ async def remind_manager(order_id: int, manager_chat_id: int):
         return
 
     text = (
-        f"📌 Напоминание: заказ №{order_id} был оформлен ранее\n"
+        f"📌 Напоминание:\n" 
+        f"Корзина пользователя №{order_info['cart_id']} был оформлен ранее\n"
         f"Клиент: {order_info['username']}\n"
         f"Телефон: {order_info['phone']}\n"
         f"Сумма заказа: {order_info['total_price']:.2f} BYN"
